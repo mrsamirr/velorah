@@ -28,15 +28,29 @@ import {
 export async function createArticleAction(
   state: ArticleFormState,
   formData: FormData
-): Promise<ArticleFormState & { id?: string }> {
-  // 1. Validate input
+): Promise<ArticleFormState & { id?: string; slug?: string }> {
+  // Parse tag_ids from JSON string
+  let tag_ids: string[] | undefined
+  const tagIdsRaw = formData.get('tag_ids')
+  if (tagIdsRaw && typeof tagIdsRaw === 'string') {
+    try { tag_ids = JSON.parse(tagIdsRaw) } catch { /* ignore */ }
+  }
+
   const validatedFields = CreateArticleSchema.safeParse({
     title: formData.get('title'),
     content: formData.get('content'),
+    content_raw: formData.get('content_raw') || undefined,
     excerpt: formData.get('excerpt') || undefined,
     cover_image_url: formData.get('cover_image_url') || undefined,
-    category: formData.get('category') || undefined,
+    cover_image_alt: formData.get('cover_image_alt') || undefined,
+    category_id: formData.get('category_id') || undefined,
+    tag_ids,
     status: formData.get('status') || 'draft',
+    allow_comments: formData.get('allow_comments') !== 'false',
+    scheduled_at: formData.get('scheduled_at') || undefined,
+    meta_title: formData.get('meta_title') || undefined,
+    meta_description: formData.get('meta_description') || undefined,
+    canonical_url: formData.get('canonical_url') || undefined,
   })
 
   if (!validatedFields.success) {
@@ -45,18 +59,17 @@ export async function createArticleAction(
     }
   }
 
-  // 2. Delegate to DAL (handles auth + DB insert)
   const result = await dalCreateArticle(validatedFields.data)
 
   if ('error' in result) {
     return { message: result.error }
   }
 
-  // 3. Revalidate affected paths
   revalidatePath('/author')
   revalidatePath('/feed')
+  revalidatePath('/')
 
-  return { id: result.id }
+  return { id: result.id, slug: result.slug }
 }
 
 export async function updateArticleAction(
@@ -64,21 +77,26 @@ export async function updateArticleAction(
   state: ArticleFormState,
   formData: FormData
 ): Promise<ArticleFormState> {
-  // 1. Validate input
   const raw: Record<string, unknown> = {}
-  const title = formData.get('title')
-  const content = formData.get('content')
-  const excerpt = formData.get('excerpt')
-  const cover_image_url = formData.get('cover_image_url')
-  const category = formData.get('category')
-  const status = formData.get('status')
+  const fields = ['title', 'content', 'content_raw', 'excerpt', 'cover_image_url',
+    'cover_image_alt', 'category_id', 'status', 'meta_title', 'meta_description',
+    'canonical_url', 'scheduled_at'] as const
 
-  if (title) raw.title = title
-  if (content) raw.content = content
-  if (excerpt) raw.excerpt = excerpt
-  if (cover_image_url) raw.cover_image_url = cover_image_url
-  if (category) raw.category = category
-  if (status) raw.status = status
+  for (const field of fields) {
+    const val = formData.get(field)
+    if (val !== null) raw[field] = val
+  }
+
+  const allowComments = formData.get('allow_comments')
+  if (allowComments !== null) raw.allow_comments = allowComments !== 'false'
+
+  const isPinned = formData.get('is_pinned')
+  if (isPinned !== null) raw.is_pinned = isPinned === 'true'
+
+  const tagIdsRaw = formData.get('tag_ids')
+  if (tagIdsRaw && typeof tagIdsRaw === 'string') {
+    try { raw.tag_ids = JSON.parse(tagIdsRaw) } catch { /* ignore */ }
+  }
 
   const validatedFields = UpdateArticleSchema.safeParse(raw)
 
@@ -88,14 +106,12 @@ export async function updateArticleAction(
     }
   }
 
-  // 2. Delegate to DAL (handles auth + ownership + DB update)
   const result = await dalUpdateArticle(articleId, validatedFields.data)
 
   if (!result.success) {
     return { message: result.error || 'Failed to update article' }
   }
 
-  // 3. Revalidate affected paths
   revalidatePath('/author')
   revalidatePath('/feed')
   revalidatePath(`/article/${articleId}`)
@@ -137,19 +153,78 @@ export async function publishArticleAction(
   return { success: true }
 }
 
+export async function archiveArticleAction(
+  articleId: string
+): Promise<{ success: boolean; error?: string }> {
+  const result = await dalUpdateArticle(articleId, {
+    status: 'archived',
+  })
+
+  if (!result.success) {
+    return { success: false, error: result.error }
+  }
+
+  revalidatePath('/author')
+  revalidatePath('/feed')
+
+  return { success: true }
+}
+
+export async function pinArticleAction(
+  articleId: string,
+  pinned: boolean
+): Promise<{ success: boolean; error?: string }> {
+  const result = await dalUpdateArticle(articleId, {
+    is_pinned: pinned,
+  })
+
+  if (!result.success) {
+    return { success: false, error: result.error }
+  }
+
+  revalidatePath('/author')
+
+  return { success: true }
+}
+
+export async function scheduleArticleAction(
+  articleId: string,
+  scheduledAt: string
+): Promise<{ success: boolean; error?: string }> {
+  const result = await dalUpdateArticle(articleId, {
+    scheduled_at: scheduledAt,
+  })
+
+  if (!result.success) {
+    return { success: false, error: result.error }
+  }
+
+  revalidatePath('/author')
+
+  return { success: true }
+}
+
 export async function updateProfileAction(
   state: ProfileFormState,
   formData: FormData
 ): Promise<ProfileFormState> {
-  // 1. Validate input
   const raw: Record<string, unknown> = {}
-  const display_name = formData.get('display_name')
-  const bio = formData.get('bio')
-  const avatar_url = formData.get('avatar_url')
+  const fields = ['display_name', 'username', 'bio', 'avatar_url', 'cover_image_url',
+    'website_url', 'location'] as const
 
-  if (display_name) raw.display_name = display_name
-  if (bio !== null) raw.bio = bio
-  if (avatar_url) raw.avatar_url = avatar_url
+  for (const field of fields) {
+    const val = formData.get(field)
+    if (val !== null) raw[field] = val || undefined
+  }
+
+  // Parse social_links from JSON string
+  const socialLinksRaw = formData.get('social_links')
+  if (socialLinksRaw && typeof socialLinksRaw === 'string') {
+    try { raw.social_links = JSON.parse(socialLinksRaw) } catch { /* ignore */ }
+  }
+
+  const emailNotifications = formData.get('email_notifications')
+  if (emailNotifications !== null) raw.email_notifications = emailNotifications === 'true'
 
   const validatedFields = UpdateProfileSchema.safeParse(raw)
 
@@ -159,7 +234,6 @@ export async function updateProfileAction(
     }
   }
 
-  // 2. Delegate to DAL
   const result = await dalUpdateProfile(validatedFields.data)
 
   if (!result.success) {
@@ -167,5 +241,6 @@ export async function updateProfileAction(
   }
 
   revalidatePath('/author')
+  revalidatePath('/settings')
   return { message: 'Profile updated successfully' }
 }

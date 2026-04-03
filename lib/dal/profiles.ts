@@ -2,26 +2,31 @@ import 'server-only'
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { requireAuth, type AuthUser } from '@/lib/dal/auth'
+import { requireAuth } from '@/lib/dal/auth'
+import type { Json } from '@/lib/types/database'
 
 /**
  * Data Access Layer — Profiles
  *
  * All profile CRUD goes through here.
- * Each function performs its own auth/authorization checks.
- *
- * SECURITY:
- * - Never returns raw DB rows to client — always maps to DTOs
- * - Checks ownership on mutations (IDOR prevention)
- * - Uses parameterized queries (Supabase SDK handles SQL injection)
+ * SECURITY: Never returns raw DB rows — always maps to DTOs.
  */
 
 export type ProfileDTO = {
   id: string
   display_name: string
+  username: string
   bio: string | null
   avatar_url: string | null
+  cover_image_url: string | null
+  website_url: string | null
+  location: string | null
+  social_links: Json
   role: string
+  is_verified: boolean
+  follower_count: number
+  following_count: number
+  article_count: number
   created_at: string
 }
 
@@ -32,27 +37,65 @@ export type ProfileStats = {
   total_views: number
 }
 
+const PROFILE_SELECT = `
+  id, display_name, username, bio, avatar_url, cover_image_url,
+  website_url, location, social_links, role, is_verified,
+  follower_count, following_count, article_count, created_at
+`
+
 /**
  * Get a user's public profile by ID.
- * No auth required — public data.
  */
 export async function getProfileById(userId: string): Promise<ProfileDTO | null> {
   const supabase = await createClient()
 
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, display_name, bio, avatar_url, role, created_at')
+    .select(PROFILE_SELECT)
     .eq('id', userId)
     .single()
 
   if (error || !data) return null
-
   return data as ProfileDTO
 }
 
 /**
+ * Get a user's public profile by username.
+ */
+export async function getProfileByUsername(username: string): Promise<ProfileDTO | null> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select(PROFILE_SELECT)
+    .eq('username', username)
+    .single()
+
+  if (error || !data) return null
+  return data as ProfileDTO
+}
+
+/**
+ * Check if a username is available.
+ */
+export async function isUsernameAvailable(username: string, excludeUserId?: string): Promise<boolean> {
+  const supabase = await createClient()
+
+  let query = supabase
+    .from('profiles')
+    .select('id', { count: 'exact', head: true })
+    .eq('username', username)
+
+  if (excludeUserId) {
+    query = query.neq('id', excludeUserId)
+  }
+
+  const { count } = await query
+  return count === 0
+}
+
+/**
  * Get the current user's own profile.
- * Requires authentication.
  */
 export async function getMyProfile(): Promise<ProfileDTO | null> {
   const user = await requireAuth()
@@ -61,13 +104,30 @@ export async function getMyProfile(): Promise<ProfileDTO | null> {
 
 /**
  * Update the current user's profile.
- * Only allows updating own profile (authorization via RLS + code check).
  */
 export async function updateProfile(
-  updates: { display_name?: string; bio?: string; avatar_url?: string }
+  updates: {
+    display_name?: string
+    username?: string
+    bio?: string
+    avatar_url?: string
+    cover_image_url?: string
+    website_url?: string
+    location?: string
+    social_links?: Record<string, string>
+    email_notifications?: boolean
+  }
 ): Promise<{ success: boolean; error?: string }> {
   const user = await requireAuth()
   const supabase = await createClient()
+
+  // If username is being changed, verify uniqueness
+  if (updates.username) {
+    const available = await isUsernameAvailable(updates.username, user.id)
+    if (!available) {
+      return { success: false, error: 'Username is already taken' }
+    }
+  }
 
   const { error } = await supabase
     .from('profiles')
@@ -84,12 +144,13 @@ export async function updateProfile(
 
 /**
  * Create a profile for a new user.
- * Uses admin client to bypass RLS (needed during signup flow).
+ * Uses admin client to bypass RLS (needed during signup).
  */
 export async function createProfile(
   userId: string,
   email: string,
-  displayName: string
+  displayName: string,
+  username: string
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = await createAdminClient()
 
@@ -97,6 +158,7 @@ export async function createProfile(
     id: userId,
     email,
     display_name: displayName,
+    username,
     role: 'author',
     bio: null,
     avatar_url: null,
@@ -112,7 +174,6 @@ export async function createProfile(
 
 /**
  * Get profile stats for the current user.
- * Calls separate count queries to avoid leaking data.
  */
 export async function getMyProfileStats(): Promise<ProfileStats> {
   const user = await requireAuth()
@@ -140,11 +201,11 @@ export async function getMyProfileStats(): Promise<ProfileStats> {
     ])
 
   const totalLikes = (likesResult.data || []).reduce(
-    (sum, a) => sum + (a.like_count || 0),
+    (sum: number, a: { like_count: number }) => sum + (a.like_count || 0),
     0
   )
   const totalViews = (viewsResult.data || []).reduce(
-    (sum, a) => sum + (a.view_count || 0),
+    (sum: number, a: { view_count: number }) => sum + (a.view_count || 0),
     0
   )
 

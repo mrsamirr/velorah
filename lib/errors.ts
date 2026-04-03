@@ -43,6 +43,21 @@ export class ValidationError extends AppError {
   }
 }
 
+export class RateLimitError extends AppError {
+  public readonly retryAfter: number
+
+  constructor(retryAfter: number, message = 'Too many requests') {
+    super(message, 429)
+    this.retryAfter = retryAfter
+  }
+}
+
+export class ConflictError extends AppError {
+  constructor(message = 'Resource already exists') {
+    super(message, 409)
+  }
+}
+
 /**
  * Safely extract a user-facing message from any error.
  * Never exposes stack traces or internal details.

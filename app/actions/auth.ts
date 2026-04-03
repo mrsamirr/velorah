@@ -61,7 +61,13 @@ export async function signup(
 
   // 3. Create profile in our profiles table
   if (authData.user) {
-    await createProfile(authData.user.id, email, displayName)
+    // Generate username from display name
+    const baseUsername = displayName
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '')
+      .slice(0, 20) || 'user'
+    const username = `${baseUsername}${Date.now().toString(36).slice(-4)}`
+    await createProfile(authData.user.id, email, displayName, username)
   }
 
   // 4. Redirect to dashboard

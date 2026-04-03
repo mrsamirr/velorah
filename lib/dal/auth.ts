@@ -2,6 +2,7 @@ import 'server-only'
 
 import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
+import type { UserRole } from '@/lib/types/database'
 
 /**
  * Data Access Layer — Auth
@@ -53,5 +54,26 @@ export async function requireAuth(): Promise<AuthUser> {
   if (!user) {
     throw new Error('Unauthorized')
   }
+  return user
+}
+
+/**
+ * Require the current user to have a specific role.
+ * Throws if not authenticated or role doesn't match.
+ */
+export async function requireRole(...roles: UserRole[]): Promise<AuthUser> {
+  const user = await requireAuth()
+  const supabase = await createClient()
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile || !roles.includes(profile.role as UserRole)) {
+    throw new Error('Forbidden')
+  }
+
   return user
 }

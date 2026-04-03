@@ -90,4 +90,16 @@ export const RATE_LIMITS = {
   createArticle: { limit: 10, windowSeconds: 3600 } as RateLimitConfig,
   /** API reads: 60 per minute */
   apiRead: { limit: 60, windowSeconds: 60 } as RateLimitConfig,
+  /** Comments: 20 per 10 minutes */
+  comment: { limit: 20, windowSeconds: 600 } as RateLimitConfig,
+  /** Likes/bookmarks: 60 per minute */
+  engagement: { limit: 60, windowSeconds: 60 } as RateLimitConfig,
+  /** File uploads: 20 per hour */
+  upload: { limit: 20, windowSeconds: 3600 } as RateLimitConfig,
+  /** Search: 30 per minute */
+  search: { limit: 30, windowSeconds: 60 } as RateLimitConfig,
+  /** Reports: 5 per hour */
+  report: { limit: 5, windowSeconds: 3600 } as RateLimitConfig,
+  /** Contact form: 3 per hour */
+  contact: { limit: 3, windowSeconds: 3600 } as RateLimitConfig,
 } as const

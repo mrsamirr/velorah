@@ -1,191 +1,502 @@
-Okay, I can definitely help you structure a Project PRD (Product Requirements Document) or a Project Brief. Since the "following context" is currently missing, I'll provide a comprehensive template with placeholders.
+# Velorah Product Specification
 
-Please fill in the bracketed `[ ]` sections with the actual details from your project. The more specific you are, the more valuable this document will be.
+Document version: 2.0  
+Date: 2026-04-03  
+Status: Working spec (mapped to current codebase)
 
----
+## 1. Product Overview
 
-# Project PRD / Brief: `[Velorah]`
+Velorah is a publication platform for long-form writing with a cinematic, minimalist brand language. The product combines:
 
-**Document Version:** 1.0
-**Date:** `[Current Date]`
-**Document Owner:** `[Your Name/Role]`
-**Status:** `[Draft / Review / Approved]`
+- A public discovery and reading surface
+- Author identity and publishing workflows
+- Supabase-backed content and profile data
+- Public APIs for article retrieval
 
----
+Primary value proposition:
 
-## 1. Executive Summary
+- Readers: high-signal editorial experience
+- Authors: focused writing and profile-driven publishing
+- Operators: secure-by-default content system with RLS and typed DAL
 
-`[Provide a concise, high-level overview of the project. What problem are we solving? What is the proposed solution? What's the main expected impact/benefit? Aim for 2-4 sentences.]`
+## 2. Module Map
 
-**Example:** "This project aims to enhance our customer support experience by integrating a new AI-powered chatbot on our website. This will reduce response times for common queries, improve customer satisfaction, and free up our human agents for more complex issues, ultimately reducing operational costs by 15%."
+### Module A: Experience Shell and Navigation
+Owned surfaces:
 
----
+- Global layout and typography
+- Global navigation and footer
+- Shared visual language
 
-## 2. Problem Statement / Opportunity
+Code surfaces:
 
-`[Clearly articulate the specific problem(s) this project seeks to solve, or the market opportunity it aims to capture. Provide data or context to support the claim if possible.]`
+- app/layout.tsx
+- components/TopNavBar.tsx
+- components/Footer.tsx
 
-**Example - Problem:** "Our current customer support system relies heavily on email and phone, leading to an average response time of 24-48 hours for basic inquiries. This delay results in a 10% increase in customer churn and frequently overloaded support agents, impacting employee morale and increasing operational costs."
+### Module B: Public Discovery and Reading
+Owned surfaces:
 
-**Example - Opportunity:** "There is a growing market demand for on-demand, instant support, with 60% of our target demographic expressing a preference for self-service options. Implementing a chatbot positions us to capture a new segment of users who value immediate resolutions, potentially increasing user acquisition by 5% within the first year."
+- Landing, feed, archive, article, about, blogs, home
 
----
+Code surfaces:
 
-## 3. Goals & Objectives (SMART)
+- app/page.tsx
+- app/feed/page.tsx
+- app/archive/page.tsx
+- app/article/page.tsx
+- app/about/page.tsx
+- app/blogs/page.tsx
+- app/home/page.tsx
 
-`[What specific, measurable, achievable, relevant, and time-bound goals will this project accomplish? These should directly address the problem/opportunity identified above.]`
+### Module C: Identity and Access
+Owned surfaces:
 
-*   **Primary Goal:** `[e.g., Improve customer satisfaction by 20% (NPS score) within 6 months post-launch.]`
-*   **Secondary Goal 1:** `[e.g., Reduce average customer support response time for common queries to under 5 minutes.]`
-*   **Secondary Goal 2:** `[e.g., Deflect 30% of tier-1 support tickets to the chatbot within 3 months.]`
-*   **Secondary Goal 3:** `[e.g., Reduce customer support operational costs by 15% in the first year.]`
+- Sign in, sign up, auth callback, session middleware
 
----
+Code surfaces:
 
-## 4. Target Audience
+- app/signin/page.tsx
+- app/signup/page.tsx
+- app/api/auth/callback/route.ts
+- middleware.ts
+- lib/supabase/middleware.ts
+- app/actions/auth.ts
+- lib/schemas/auth.ts
+- lib/dal/auth.ts
 
-`[Who are the primary users/customers this project is designed for? Describe them in detail.]`
+### Module D: Author Studio and Publishing
+Owned surfaces:
 
-*   **Primary Users:** `[e.g., Existing customers seeking quick answers to common FAQs (e.g., billing, order status, basic troubleshooting).]`
-*   **Secondary Users (if applicable):** `[e.g., New website visitors looking for product information or pre-sales support.]`
-*   **Internal Users (if applicable):** `[e.g., Customer Support Agents who will use the chatbot's escalation features or analytics.]`
-*   **Personas (if available):** `[Link to Persona documents or briefly describe key persona characteristics.]`
+- Author dashboard
+- Publish/editor interface
+- Content server actions
 
----
+Code surfaces:
 
-## 5. Proposed Solution & Key Features
+- app/author/page.tsx
+- app/publish/page.tsx
+- app/actions/content.ts
+- lib/schemas/content.ts
+- lib/dal/articles.ts
+- lib/dal/profiles.ts
 
-`[High-level description of the solution. Then, list the core features and functionalities that will be built or implemented as part of this project. Be specific about what the solution *does*.]`
+### Module E: Content Delivery APIs
+Owned surfaces:
 
-**High-Level Solution:**
-`[e.g., Implement an AI-powered conversational chatbot directly on our website, accessible from all pages. The chatbot will be trained on our existing FAQ database and customer support transcripts to provide instant answers.]`
+- Public article list and detail APIs
+- Health endpoint
 
-**Key Features (MVP Focus):**
-1.  **`[Feature 1 Name]`**: `[Brief description of functionality and user value. e.g., AI-powered natural language processing: Users can type questions in natural language and receive relevant, accurate answers from the chatbot.]`
-2.  **`[Feature 2 Name]`**: `[e.g., FAQ database integration: Chatbot leverages our existing knowledge base for immediate information retrieval.]`
-3.  **`[Feature 3 Name]`**: `[e.g., Human agent handoff: Option for users to seamlessly escalate complex issues to a live support agent within the chat interface.]`
-4.  **`[Feature 4 Name]`**: `[e.g., Basic analytics dashboard: Track chatbot usage, deflection rate, common queries, and user satisfaction scores.]`
-5.  `[Add more as needed...]`
+Code surfaces:
 
----
+- app/api/articles/route.ts
+- app/api/articles/[id]/route.ts
+- app/api/health/route.ts
 
-## 6. Scope (In-Scope & Out-of-Scope)
+### Module F: Data Platform and Security Foundation
+Owned surfaces:
 
-`[Clearly define what is included in this project's initial release (MVP) and, equally important, what is explicitly NOT included, to manage expectations and prevent scope creep.]`
+- Supabase schema and RLS
+- Typed DB contracts
+- Supabase client wrappers
+- Rate limit primitives
 
-**In-Scope:**
-*   `[e.g., Deployment of chatbot on website (desktop & mobile web).]`
-*   `[e.g., Training chatbot on current English FAQ database.]`
-*   `[e.g., Integration with existing CRM for customer identification during handoff.]`
-*   `[e.g., Basic reporting on chatbot performance.]`
+Code surfaces:
 
-**Out-of-Scope (for this phase):**
-*   `[e.g., Chatbot integration on mobile apps.]`
-*   `[e.g., Multi-language support for the chatbot.]`
-*   `[e.g., Proactive chatbot prompts based on user behavior.]`
-*   `[e.g., Advanced AI features like sentiment analysis or personalized recommendations.]`
-*   `[e.g., Integration with social media platforms.]`
+- supabase/schema.sql
+- lib/types/database.ts
+- lib/supabase/client.ts
+- lib/supabase/server.ts
+- lib/supabase/admin.ts
+- lib/rate-limit.ts
 
----
+### Module G: Legal and Policy Experience
+Owned surfaces:
 
-## 7. Success Metrics & KPIs
+- Privacy, terms, and cookies pages
 
-`[How will we measure if this project has achieved its goals? These should be quantifiable and directly link back to Section 3.]`
+Code surfaces:
 
-*   **Metric 1:** `[e.g., Customer Satisfaction Score (CSAT) for chatbot interactions (target: >85%).]`
-*   **Metric 2:** `[e.g., Support Ticket Deflection Rate (target: 30% of tier-1 tickets).]`
-*   **Metric 3:** `[e.g., Average Chatbot Session Duration (monitor for optimal engagement, not too long, not too short).]`
-*   **Metric 4:** `[e.g., First Contact Resolution Rate (for chatbot interactions).]`
-*   **Metric 5:** `[e.g., Cost Savings in Support Operations (measured quarterly).]`
+- app/privacy/page.tsx
+- app/terms/page.tsx
+- app/cookies/page.tsx
 
----
+## 3. Module Specifications
 
-## 8. Assumptions
+## Module A: Experience Shell and Navigation
 
-`[List any critical assumptions made that, if proven false, could impact the project's success, timeline, or scope.]`
+### Purpose
+Provide a consistent visual and navigational frame across all pages, preserving brand coherence and reducing wayfinding friction.
 
-*   `[e.g., Existing knowledge base content is sufficiently comprehensive and up-to-date for chatbot training.]`
-*   `[e.g., The chosen chatbot platform can integrate seamlessly with our existing website and CRM.]`
-*   `[e.g., Necessary technical resources (e.g., engineers, data scientists) will be available as planned.]`
-*   `[e.g., User adoption of the chatbot will meet initial expectations.]`
+### Users
 
----
+- All site visitors
+- Authenticated authors
 
-## 9. Dependencies & Risks
+### Core User Stories
 
-`[Identify any internal or external dependencies this project relies on, and potential risks that could hinder its success.]`
+- As a visitor, I can access major site areas from any page.
+- As a reader, I can identify current section context.
+- As an author, I can quickly reach sign-in or publishing entry points.
 
-**Dependencies:**
-*   `[e.g., Availability of Customer Support team for chatbot training and feedback.]`
-*   `[e.g., Finalization of legal review for privacy policy related to chatbot data collection.]`
-*   `[e.g., Third-party API stability for CRM integration.]`
+### Functional Requirements
 
-**Risks:**
-*   **Risk 1:** `[e.g., Chatbot provides inaccurate answers, leading to customer frustration and decreased CSAT.]`
-    *   **Mitigation:** `[e.g., Robust testing phase with internal users; continuous monitoring and retraining of AI model post-launch.]`
-*   **Risk 2:** `[e.g., Technical integration challenges with existing systems leading to project delays.]`
-    *   **Mitigation:** `[e.g., Thorough discovery phase; proof-of-concept for key integrations; buffer time in schedule.]`
-*   **Risk 3:** `[e.g., Low user adoption due to poor UX or lack of awareness.]`
-    *   **Mitigation:** `[e.g., Intuitive UI design; clear on-site promotion; A/B testing entry points.]`
+- Fixed top navigation with section links and brand anchor.
+- Scroll-aware nav background transition for readability.
+- Responsive behavior with mobile menu trigger.
+- Footer with legal and company links.
+- Global font and theme token injection via root layout.
 
----
+### Non-Functional Requirements
 
-## 10. Stakeholders
+- First paint navigation visible within initial viewport.
+- Navigation interaction latency imperceptible for user (<100ms target).
+- Visual consistency across all app routes.
 
-`[Identify key individuals or groups involved in, impacted by, or providing input/approval for this project.]`
+### Dependencies
 
-*   **Product:** `[Product Manager (You), Product Owner]`
-*   **Engineering:** `[Engineering Lead, Development Team]`
-*   **Design:** `[UX/UI Designer]`
-*   **Marketing:** `[Marketing Lead, Content Team]`
-*   **Customer Support:** `[Support Manager, Support Agents]`
-*   **Sales:** `[Sales Lead (if impacts sales process)]`
-*   **Legal/Compliance:** `[Legal Counsel (for data privacy, terms of service)]`
-*   **Executive Sponsor:** `[e.g., VP of Product, CTO]`
+- Next app router layout
+- Shared CSS tokens and utility classes
 
----
+### Current Implementation Status
 
-## 11. High-Level Timeline / Milestones (Optional for brief, good for PRD)
+- Implemented: fixed header, contextual highlighting, footer links.
+- Gap: mobile menu button does not yet open a rendered mobile navigation panel.
 
-`[Provide a rough estimate of the project timeline and key milestones. This can be more detailed in a full PRD.]`
+### Success Metrics
 
-*   **Phase 1: Discovery & Planning:** `[e.g., Weeks 1-2]`
-*   **Phase 2: Design & Prototyping:** `[e.g., Weeks 3-5]`
-*   **Phase 3: Development & Integration:** `[e.g., Weeks 6-12]`
-*   **Phase 4: Testing & QA:** `[e.g., Weeks 13-14]`
-*   **Phase 5: Internal Pilot / Beta Launch:** `[e.g., Week 15]`
-*   **Phase 6: General Availability (GA) Launch:** `[e.g., Week 16]`
-*   **Phase 7: Post-Launch Monitoring & Iteration:** `[e.g., Ongoing]`
+- Navigation click-through rate to Feed, Archive, About
+- Reduced bounce from first session landing
+- Footer legal-page visit completion rate
 
----
+## Module B: Public Discovery and Reading
 
-## 12. Open Questions & Next Steps
+### Purpose
+Deliver editorial discovery and immersive reading for non-authenticated users.
 
-`[List any outstanding questions that need to be answered or decisions that need to be made before proceeding. Outline the immediate next steps.]`
+### Users
 
-**Open Questions:**
-*   `[e.g., What is the budget allocation for third-party chatbot software?]`
-*   `[e.g., Who will be responsible for ongoing chatbot content maintenance and training?]`
-*   `[e.g., What are the legal requirements for data storage and privacy specific to chatbot interactions?]`
+- Anonymous readers
+- Returning readers
 
-**Next Steps:**
-1.  `[e.g., Schedule kick-off meeting with Engineering and Design teams.]`
-2.  `[e.g., Finalize vendor selection for chatbot platform.]`
-3.  `[e.g., Begin detailed UX flows and wireframing for chatbot integration points.]`
-4.  `[e.g., Draft user stories for MVP features.]`
+### Core User Stories
 
----
+- As a new visitor, I can understand the brand and begin reading quickly.
+- As a reader, I can browse featured and archived content.
+- As a reader, I can open an article detail page from cards and links.
 
-## 13. Appendices (Optional)
+### Functional Requirements
 
-`[Link to or include any supporting documents that provide further detail.]`
+- Landing route with CTA into reading journey.
+- Feed route presenting featured and secondary stories.
+- Archive route with historical/curated list entries.
+- Article route with long-form content layout and metadata panel.
+- About route with mission narrative.
 
-*   `[Link to User Stories / Backlog]`
-*   `[Link to Wireframes / Mockups]`
-*   `[Link to Technical Specifications (if available)]`
-*   `[Link to User Research / Market Analysis]`
-*   `[Competitive Analysis]`
+### Non-Functional Requirements
 
----
+- Mobile and desktop responsive rendering.
+- Readability baseline for long text blocks.
+- Stable layout with large media assets.
 
-This template provides a robust framework. Remember that a PRD or project brief is a living document, so it should be updated as the project evolves.
+### Dependencies
+
+- Shared shell components
+- API module for dynamic feed/detail integration (future hard wiring)
+
+### Current Implementation Status
+
+- Implemented: all public pages render with branded experience.
+- Gap: discovery pages are primarily static composition; article links route to a single static article page rather than slug or id-based route.
+
+### Success Metrics
+
+- Sessions reaching /feed from landing
+- Article open rate from feed and archive
+- Scroll depth on article pages
+
+## Module C: Identity and Access
+
+### Purpose
+Authenticate users, establish sessions securely, and protect author-only areas.
+
+### Users
+
+- Prospective authors
+- Returning authors
+
+### Core User Stories
+
+- As a user, I can create an account with validated credentials.
+- As a user, I can sign in and be redirected to my author space.
+- As an unauthenticated visitor, I am redirected away from protected pages.
+
+### Functional Requirements
+
+- Sign-up action validates display name, email, and password policy.
+- Sign-in action validates credentials and signs in through Supabase Auth.
+- Sign-out action terminates session and revalidates layout.
+- Auth callback exchanges PKCE code and performs safe same-origin redirect.
+- Middleware refreshes auth state and gates protected routes.
+
+### Security and Privacy Requirements
+
+- Use token-validating getUser path instead of unverified getSession in middleware and DAL auth checks.
+- Prevent open redirect in callback by enforcing host/origin constraints.
+- Return generic auth errors to avoid account enumeration.
+
+### API/Contract Notes
+
+- Callback endpoint: GET /api/auth/callback?code=...&next=...
+- Protected route set: /author, /publish
+
+### Dependencies
+
+- Supabase auth
+- Server actions and auth schemas
+
+### Current Implementation Status
+
+- Implemented server-side auth stack with middleware and callback exchange.
+- Gap: current sign-in/sign-up page UIs are primarily client-side mock flows and are not wired to server actions in the form submit path.
+
+### Success Metrics
+
+- Sign-up completion rate
+- Sign-in success rate
+- Unauthorized access redirect correctness
+
+## Module D: Author Studio and Publishing
+
+### Purpose
+Enable authenticated authors to create, edit, publish, and manage content and profile data.
+
+### Users
+
+- Authenticated authors
+
+### Core User Stories
+
+- As an author, I can view my dashboard and publishing stats.
+- As an author, I can create drafts and publish articles.
+- As an author, I can update and delete only my own content.
+- As an author, I can update my own profile.
+
+### Functional Requirements
+
+- Content server actions must validate all input via Zod.
+- Article create/update/delete/publish flow must enforce ownership.
+- Profile update flow must only mutate current user profile.
+- Read-time should be computed from content body on create/update.
+- Dashboard should expose author-relevant metrics and article list.
+
+### Security Requirements
+
+- Defense in depth:
+- Action-level validation
+- DAL-level requireAuth and ownership checks
+- Database RLS policy enforcement
+
+### Data Contracts
+
+- Article DTO fields include: id, title, content, excerpt, category, cover image, status, author metadata, counts, timestamps.
+- Profile DTO fields include: id, display_name, bio, avatar_url, role, created_at.
+
+### Dependencies
+
+- DAL modules for articles and profiles
+- Content and profile schemas
+- Supabase server/admin clients
+
+### Current Implementation Status
+
+- Implemented backend actions and DAL with auth and ownership checks.
+- Gap: current dashboard and publish pages are mostly static UI and do not yet submit to server actions for end-to-end persistence.
+
+### Success Metrics
+
+- Draft creation rate
+- Publish conversion rate from draft
+- Edit/delete success rate with no ownership violations
+
+## Module E: Content Delivery APIs
+
+### Purpose
+Expose read-focused, public endpoints for article list/detail retrieval and service health checks.
+
+### Users
+
+- Web frontend pages
+- External API consumers (future)
+- Monitoring infrastructure
+
+### Core User Stories
+
+- As a client, I can fetch published articles with pagination and filtering.
+- As a client, I can fetch one published article by id.
+- As ops, I can verify service health quickly.
+
+### Functional Requirements
+
+- GET /api/articles:
+- Supports query params: limit, offset, category
+- Clamps limit to max 50
+- Returns data plus pagination block
+- GET /api/articles/[id]:
+- Returns full article data or 404
+- Triggers async view count increment
+- GET /api/health:
+- Returns healthy or unhealthy state with timestamp and service map
+
+### Error Handling Requirements
+
+- Return 500 for unexpected failures in article endpoints.
+- Return 404 when specific article is not found.
+- Health endpoint returns 503 when unavailable.
+
+### Dependencies
+
+- Article DAL and RPC function increment_view_count
+- Supabase connectivity
+
+### Current Implementation Status
+
+- Implemented and operational in code.
+
+### Success Metrics
+
+- API availability (>=99.9% target)
+- p95 response time for list/detail
+- Error rate by endpoint
+
+## Module F: Data Platform and Security Foundation
+
+### Purpose
+Provide durable, secure data persistence and typed access for profiles/articles.
+
+### Users
+
+- Backend services and actions
+- Data and security operators
+
+### Core User Stories
+
+- As a backend engineer, I can rely on typed contracts for DB interaction.
+- As a security owner, I can enforce least-privilege access at row level.
+- As an operator, I can track content engagement via view counts.
+
+### Functional Requirements
+
+- Profiles and articles tables with required constraints.
+- RLS policies for public read and owner-scoped writes.
+- Triggers for updated_at maintenance.
+- RPC for view counter increment.
+- Generated/maintained TypeScript DB type surface.
+
+### Security Requirements
+
+- RLS enabled on profiles and articles.
+- Author ownership enforced in insert/update/delete policies.
+- Auth users linkage via profile foreign key.
+- Admin client usage limited to system-only flows (profile bootstrap).
+
+### Performance Requirements
+
+- Indexes on author_id, status, published_at, category.
+- Efficient feed ordering by published_at desc.
+
+### Dependencies
+
+- Supabase project environment variables
+- Schema migration discipline
+
+### Current Implementation Status
+
+- Implemented schema and type layer.
+- Gap: in-memory rate limiter exists but is not yet integrated into actions/routes and is not suitable for multi-instance production.
+
+### Success Metrics
+
+- Zero RLS bypass incidents
+- Query latency on indexed paths
+- Type mismatch incidents in CI/build
+
+## Module G: Legal and Policy Experience
+
+### Purpose
+Expose transparent legal information and policy surfaces for trust and compliance.
+
+### Users
+
+- All visitors
+- Compliance reviewers
+
+### Core User Stories
+
+- As a visitor, I can find privacy, terms, and cookie policy from footer links.
+- As a reviewer, I can inspect current policy language quickly.
+
+### Functional Requirements
+
+- Dedicated routes for privacy, terms, cookies.
+- Consistent branded layout and readability.
+
+### Dependencies
+
+- Shared shell components
+
+### Current Implementation Status
+
+- Implemented static legal pages.
+- Gap: policy content appears placeholder-level and likely requires legal-approved final text.
+
+### Success Metrics
+
+- Legal page availability
+- Footer legal link click-through
+
+## 4. Cross-Module Requirements
+
+### Availability and Reliability
+
+- Health endpoint must remain callable without auth.
+- Auth middleware must not break static asset delivery.
+
+### Security Baseline
+
+- Validate all mutating inputs at server boundary.
+- Never trust client-submitted ownership identifiers.
+- Keep auth errors generic in UI/API responses.
+
+### Observability
+
+- Track request counts, error rates, and auth flow outcomes.
+- Add structured logs on action failures for content/auth modules.
+
+## 5. Delivery Roadmap (Recommended)
+
+### Phase 1: Wire Real Auth and Publish Flows
+
+- Connect sign-in and sign-up forms to server actions.
+- Connect publish and dashboard actions to DAL-backed mutations.
+
+### Phase 2: Dynamic Reading Routes
+
+- Replace static article route experience with id/slug-driven routes.
+- Bind feed/archive cards to live API data.
+
+### Phase 3: Hardening and Scale
+
+- Integrate distributed rate limiting (Redis/Upstash).
+- Add end-to-end tests for auth, publish, and API contracts.
+
+### Phase 4: Legal and Operations Readiness
+
+- Finalize policy copy with legal review.
+- Add uptime and API SLO dashboards.
+
+## 6. Open Questions
+
+- Should profile creation happen only via DB trigger, or remain dual-path with createProfile action fallback?
+- Should article routes move to slug-based URLs for SEO and editorial shareability?
+- What moderation/editor review workflow is required for non-author roles (editor/admin)?

@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server'
-import { getArticleById } from '@/lib/dal/articles'
+import { getArticleById, getArticleBySlug } from '@/lib/dal/articles'
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 /**
- * Single Article API.
- *
- * GET /api/articles/[id]
- *
- * Returns a single published article by ID. No auth required.
+ * GET /api/articles/[id] — Single article by ID or slug.
  */
 export async function GET(
   request: Request,
@@ -14,11 +12,13 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    const article = await getArticleById(id)
+    const article = UUID_REGEX.test(id)
+      ? await getArticleById(id)
+      : await getArticleBySlug(id)
 
     if (!article) {
       return NextResponse.json(
-        { error: 'Article not found' },
+        { error: { code: 'NOT_FOUND', message: 'Article not found' } },
         { status: 404 }
       )
     }
@@ -26,7 +26,7 @@ export async function GET(
     return NextResponse.json({ data: article })
   } catch {
     return NextResponse.json(
-      { error: 'Failed to fetch article' },
+      { error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch article' } },
       { status: 500 }
     )
   }
