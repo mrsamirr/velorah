@@ -16,7 +16,7 @@ export function generateSlug(title: string): string {
  * Uses the Supabase RPC function for atomicity.
  */
 export async function ensureUniqueSlug(
-  supabase: { rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }> },
+  supabase: { rpc: (fn: string, args: Record<string, unknown>) => PromiseLike<{ data: unknown; error: unknown }> },
   baseSlug: string,
   tableName: string = 'articles'
 ): Promise<string> {

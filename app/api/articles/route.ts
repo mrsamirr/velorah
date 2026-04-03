@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { getPublishedArticles, createArticle } from '@/lib/dal/articles'
+import { getAllCategories } from '@/lib/dal/categories'
 import { CreateArticleSchema } from '@/lib/schemas/content'
 import { getCurrentUser } from '@/lib/dal/auth'
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit'
@@ -8,11 +9,19 @@ import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit'
  * Public Articles API.
  *
  * GET /api/articles?limit=20&offset=0&category_id=...&tag_id=...&author_id=...&sort=recent&featured=true
+ * GET /api/articles?categories=true — list all categories
  * POST /api/articles — create article (authenticated)
  */
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
+
+    // If categories=true, return categories list
+    if (searchParams.get('categories') === 'true') {
+      const categories = await getAllCategories()
+      return NextResponse.json({ categories })
+    }
+
     const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 50)
     const offset = Math.max(parseInt(searchParams.get('offset') || '0', 10), 0)
     const category_id = searchParams.get('category_id') || undefined
