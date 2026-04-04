@@ -43,7 +43,7 @@ export default async function ArticlePage({
               className="w-full h-full object-cover grayscale brightness-50"
               src={article.cover_image_url}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-t from-surface via-transparent to-transparent" />
           </section>
         )}
 
