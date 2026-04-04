@@ -3,6 +3,8 @@ import { getCommentsByArticle, createComment } from '@/lib/dal/comments'
 import { getCurrentUser } from '@/lib/dal/auth'
 import { CreateCommentSchema } from '@/lib/schemas/engagement'
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit'
+import { log } from '@/lib/logger'
+import { AppError } from '@/lib/errors'
 
 /**
  * GET /api/articles/[id]/comments — List article comments
@@ -16,7 +18,14 @@ export async function GET(
     const { id } = await params
     const comments = await getCommentsByArticle(id)
     return NextResponse.json({ data: comments })
-  } catch {
+  } catch (err) {
+    if (err instanceof AppError) {
+      return NextResponse.json(
+        { error: { code: 'ERROR', message: err.message } },
+        { status: err.statusCode }
+      )
+    }
+    log.error('Failed to fetch comments', { context: 'GET /api/articles/[id]/comments', error: err })
     return NextResponse.json(
       { error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch comments' } },
       { status: 500 }
@@ -70,7 +79,14 @@ export async function POST(
     }
 
     return NextResponse.json({ data: result }, { status: 201 })
-  } catch {
+  } catch (err) {
+    if (err instanceof AppError) {
+      return NextResponse.json(
+        { error: { code: 'ERROR', message: err.message } },
+        { status: err.statusCode }
+      )
+    }
+    log.error('Failed to create comment', { context: 'POST /api/articles/[id]/comments', error: err })
     return NextResponse.json(
       { error: { code: 'INTERNAL_ERROR', message: 'Failed to create comment' } },
       { status: 500 }

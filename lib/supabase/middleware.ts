@@ -43,7 +43,7 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Define protected route patterns
-  const protectedPaths = ['/author', '/publish']
+  const protectedPaths = ['/author', '/publish', '/admin']
   const isProtectedRoute = protectedPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path)
   )
@@ -58,7 +58,12 @@ export async function updateSession(request: NextRequest) {
 
   // Redirect authenticated users away from signin
   if (user && request.nextUrl.pathname === '/signin') {
-    const redirectTo = request.nextUrl.searchParams.get('redirectTo') || '/author'
+    const rawRedirect = request.nextUrl.searchParams.get('redirectTo') || '/author'
+    // Prevent open redirect: must be a relative path, not protocol-relative or absolute URL
+    const redirectTo =
+      rawRedirect.startsWith('/') && !rawRedirect.startsWith('//')
+        ? rawRedirect
+        : '/author'
     const url = request.nextUrl.clone()
     url.pathname = redirectTo
     url.search = ''

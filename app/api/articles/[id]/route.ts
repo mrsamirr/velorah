@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getArticleById, getArticleBySlug } from '@/lib/dal/articles'
+import { log } from '@/lib/logger'
+import { AppError } from '@/lib/errors'
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -24,7 +26,14 @@ export async function GET(
     }
 
     return NextResponse.json({ data: article })
-  } catch {
+  } catch (err) {
+    if (err instanceof AppError) {
+      return NextResponse.json(
+        { error: { code: 'ERROR', message: err.message } },
+        { status: err.statusCode }
+      )
+    }
+    log.error('Failed to fetch article', { context: 'GET /api/articles/[id]', error: err })
     return NextResponse.json(
       { error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch article' } },
       { status: 500 }

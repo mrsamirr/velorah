@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { getCurrentUser } from '@/lib/dal/auth'
 import { ReportSchema } from '@/lib/schemas/engagement'
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit'
+import { log } from '@/lib/logger'
+import { AppError } from '@/lib/errors'
 
 /**
  * POST /api/reports — Submit a report (authenticated)
@@ -49,7 +51,7 @@ export async function POST(request: NextRequest) {
           { status: 409 }
         )
       }
-      console.error('Report failed:', error.message)
+      log.error('Report failed', { context: 'POST /api/reports', errorMessage: error.message })
       return NextResponse.json(
         { error: { code: 'CREATE_FAILED', message: 'Failed to submit report' } },
         { status: 400 }
@@ -57,7 +59,14 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ data: { success: true } }, { status: 201 })
-  } catch {
+  } catch (err) {
+    if (err instanceof AppError) {
+      return NextResponse.json(
+        { error: { code: 'ERROR', message: err.message } },
+        { status: err.statusCode }
+      )
+    }
+    log.error('Failed to submit report', { context: 'POST /api/reports', error: err })
     return NextResponse.json(
       { error: { code: 'INTERNAL_ERROR', message: 'Failed to submit report' } },
       { status: 500 }

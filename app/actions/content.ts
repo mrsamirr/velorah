@@ -191,6 +191,12 @@ export async function scheduleArticleAction(
   articleId: string,
   scheduledAt: string
 ): Promise<{ success: boolean; error?: string }> {
+  // Validate scheduled_at is a valid future date
+  const parsed = new Date(scheduledAt)
+  if (isNaN(parsed.getTime()) || parsed <= new Date()) {
+    return { success: false, error: 'Scheduled date must be in the future' }
+  }
+
   const result = await dalUpdateArticle(articleId, {
     scheduled_at: scheduledAt,
   })

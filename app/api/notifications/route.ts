@@ -1,6 +1,8 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { getMyNotifications } from '@/lib/dal/notifications'
 import { getCurrentUser } from '@/lib/dal/auth'
+import { log } from '@/lib/logger'
+import { AppError } from '@/lib/errors'
 
 /**
  * GET /api/notifications — User notifications (authenticated)
@@ -25,7 +27,14 @@ export async function GET(request: NextRequest) {
       data: notifications,
       pagination: { limit, offset, count: notifications.length },
     })
-  } catch {
+  } catch (err) {
+    if (err instanceof AppError) {
+      return NextResponse.json(
+        { error: { code: 'ERROR', message: err.message } },
+        { status: err.statusCode }
+      )
+    }
+    log.error('Failed to fetch notifications', { context: 'GET /api/notifications', error: err })
     return NextResponse.json(
       { error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch notifications' } },
       { status: 500 }

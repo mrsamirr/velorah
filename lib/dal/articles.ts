@@ -6,6 +6,7 @@ import { generateSlug, ensureUniqueSlug } from '@/lib/utils/slug'
 import { sanitizeArticleHtml } from '@/lib/utils/sanitize'
 import { calculateReadingTime } from '@/lib/utils/reading-time'
 import type { ArticleStatus } from '@/lib/types/database'
+import { log } from '@/lib/logger'
 
 /**
  * Data Access Layer — Articles
@@ -120,7 +121,9 @@ export async function getPublishedArticles(
     featured?: boolean
   } = {}
 ): Promise<ArticleListDTO[]> {
-  const { limit = 20, offset = 0, category_id, author_id, sort = 'recent', featured } = options
+  const limit = Math.max(1, Math.min(options.limit ?? 20, 50))
+  const offset = Math.max(0, options.offset ?? 0)
+  const { category_id, author_id, sort = 'recent', featured } = options
   const supabase = await createClient()
 
   let query = supabase
@@ -451,7 +454,7 @@ export async function createArticle(input: {
     .single()
 
   if (error || !data) {
-    console.error('Article creation failed:', error?.message)
+    log.error('Article creation failed', { context: 'articles.create', errorMessage: error?.message })
     return { error: 'Failed to create article' }
   }
 
@@ -548,7 +551,7 @@ export async function updateArticle(
     .eq('author_id', user.id)
 
   if (error) {
-    console.error('Article update failed:', error.message)
+    log.error('Article update failed', { context: 'articles.update', errorMessage: error.message })
     return { success: false, error: 'Failed to update article' }
   }
 
@@ -596,7 +599,7 @@ export async function deleteArticle(
     .eq('author_id', user.id)
 
   if (error) {
-    console.error('Article deletion failed:', error.message)
+    log.error('Article deletion failed', { context: 'articles.delete', errorMessage: error.message })
     return { success: false, error: 'Failed to delete article' }
   }
 

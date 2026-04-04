@@ -1,6 +1,8 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { markAsRead } from '@/lib/dal/notifications'
 import { getCurrentUser } from '@/lib/dal/auth'
+import { log } from '@/lib/logger'
+import { AppError } from '@/lib/errors'
 
 /**
  * PATCH /api/notifications/[id] — Mark notification as read
@@ -29,7 +31,14 @@ export async function PATCH(
     }
 
     return NextResponse.json({ data: { success: true } })
-  } catch {
+  } catch (err) {
+    if (err instanceof AppError) {
+      return NextResponse.json(
+        { error: { code: 'ERROR', message: err.message } },
+        { status: err.statusCode }
+      )
+    }
+    log.error('Failed to update notification', { context: 'PATCH /api/notifications/[id]', error: err })
     return NextResponse.json(
       { error: { code: 'INTERNAL_ERROR', message: 'Failed to update notification' } },
       { status: 500 }

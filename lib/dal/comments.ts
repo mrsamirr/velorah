@@ -3,6 +3,7 @@ import 'server-only'
 import { createClient } from '@/lib/supabase/server'
 import { requireAuth } from '@/lib/dal/auth'
 import { sanitizeCommentHtml } from '@/lib/utils/sanitize'
+import { log } from '@/lib/logger'
 
 export type CommentDTO = {
   id: string
@@ -108,7 +109,7 @@ export async function createComment(input: {
     .single()
 
   if (error || !data) {
-    console.error('Comment creation failed:', error?.message)
+    log.error('Comment creation failed', { context: 'comments.create', errorMessage: error?.message })
     return { error: 'Failed to create comment' }
   }
 
@@ -155,7 +156,7 @@ export async function updateComment(
     .eq('author_id', user.id)
 
   if (error) {
-    console.error('Comment update failed:', error.message)
+    log.error('Comment update failed', { context: 'comments.update', errorMessage: error.message })
     return { success: false, error: 'Failed to update comment' }
   }
 
@@ -189,7 +190,7 @@ export async function deleteComment(
     .eq('author_id', user.id)
 
   if (error) {
-    console.error('Comment deletion failed:', error.message)
+    log.error('Comment deletion failed', { context: 'comments.delete', errorMessage: error.message })
     return { success: false, error: 'Failed to delete comment' }
   }
 
@@ -233,7 +234,7 @@ commentId: string, hidden: boolean): Promise<{ success: boolean; error?: string 
 
   const { error } = await supabase
     .from('comments')
-    .update({ is_hidden: true })
+    .update({ is_hidden: hidden })
     .eq('id', commentId)
 
   if (error) {

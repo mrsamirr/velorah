@@ -1,6 +1,8 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { searchArticles } from '@/lib/dal/search'
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit'
+import { log } from '@/lib/logger'
+import { AppError } from '@/lib/errors'
 
 /**
  * GET /api/search?q=query&limit=20&offset=0 — Full-text search
@@ -33,7 +35,14 @@ export async function GET(request: NextRequest) {
       data: articles,
       pagination: { limit, offset, count: articles.length },
     })
-  } catch {
+  } catch (err) {
+    if (err instanceof AppError) {
+      return NextResponse.json(
+        { error: { code: 'ERROR', message: err.message } },
+        { status: err.statusCode }
+      )
+    }
+    log.error('Search failed', { context: 'GET /api/search', error: err })
     return NextResponse.json(
       { error: { code: 'INTERNAL_ERROR', message: 'Search failed' } },
       { status: 500 }

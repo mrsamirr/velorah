@@ -4,6 +4,8 @@ import { getAllCategories } from '@/lib/dal/categories'
 import { CreateArticleSchema } from '@/lib/schemas/content'
 import { getCurrentUser } from '@/lib/dal/auth'
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit'
+import { log } from '@/lib/logger'
+import { AppError } from '@/lib/errors'
 
 /**
  * Public Articles API.
@@ -14,6 +16,15 @@ import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit'
  */
 export async function GET(request: NextRequest) {
   try {
+    const ip = request.headers.get('x-forwarded-for') || 'unknown'
+    const { rateLimited } = checkRateLimit(`api-read:${ip}`, { limit: 120, windowSeconds: 60 })
+    if (rateLimited) {
+      return NextResponse.json(
+        { error: { code: 'RATE_LIMITED', message: 'Too many requests' } },
+        { status: 429 }
+      )
+    }
+
     const searchParams = request.nextUrl.searchParams
 
     // If categories=true, return categories list
@@ -39,7 +50,14 @@ export async function GET(request: NextRequest) {
       data: articles,
       pagination: { limit, offset, count: articles.length },
     })
-  } catch {
+  } catch (err) {
+    if (err instanceof AppError) {
+      return NextResponse.json(
+        { error: { code: 'ERROR', message: err.message } },
+        { status: err.statusCode }
+      )
+    }
+    log.error('Failed to fetch articles', { context: 'GET /api/articles', error: err })
     return NextResponse.json(
       { error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch articles' } },
       { status: 500 }
@@ -86,7 +104,14 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ data: result }, { status: 201 })
-  } catch {
+  } catch (err) {
+    if (err instanceof AppError) {
+      return NextResponse.json(
+        { error: { code: 'ERROR', message: err.message } },
+        { status: err.statusCode }
+      )
+    }
+    log.error('Failed to create article', { context: 'POST /api/articles', error: err })
     return NextResponse.json(
       { error: { code: 'INTERNAL_ERROR', message: 'Failed to create article' } },
       { status: 500 }

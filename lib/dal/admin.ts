@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireRole } from '@/lib/dal/auth'
 import type { ArticleStatus, UserRole, ReportStatus } from '@/lib/types/database'
+import { log } from '@/lib/logger'
 
 export type PlatformStats = {
   total_users: number
@@ -78,7 +79,13 @@ export async function updateUserRole(
   userId: string,
   role: UserRole
 ): Promise<{ success: boolean; error?: string }> {
-  await requireRole('admin')
+  const admin = await requireRole('admin')
+
+  // Prevent admin from changing their own role
+  if (userId === admin.id) {
+    return { success: false, error: 'Cannot change your own role' }
+  }
+
   const supabase = await createAdminClient()
 
   const { error } = await supabase
@@ -87,7 +94,7 @@ export async function updateUserRole(
     .eq('id', userId)
 
   if (error) {
-    console.error('Role update failed:', error.message)
+    log.error('Role update failed', { context: 'admin.updateUserRole', errorMessage: error.message })
     return { success: false, error: 'Failed to update user role' }
   }
 
@@ -169,7 +176,7 @@ export async function setArticleFeatured(
     .eq('id', articleId)
 
   if (error) {
-    console.error('Set featured failed:', error.message)
+    log.error('Set featured failed', { context: 'admin.setArticleFeatured', errorMessage: error.message })
     return { success: false, error: 'Failed to update article' }
   }
 
@@ -204,7 +211,7 @@ export async function setArticleStatus(
     .eq('id', articleId)
 
   if (error) {
-    console.error('Set status failed:', error.message)
+    log.error('Set status failed', { context: 'admin.setArticleStatus', errorMessage: error.message })
     return { success: false, error: 'Failed to update article status' }
   }
 
@@ -288,7 +295,7 @@ export async function resolveReport(
     .eq('id', reportId)
 
   if (error) {
-    console.error('Resolve report failed:', error.message)
+    log.error('Resolve report failed', { context: 'admin.resolveReport', errorMessage: error.message })
     return { success: false, error: 'Failed to resolve report' }
   }
 

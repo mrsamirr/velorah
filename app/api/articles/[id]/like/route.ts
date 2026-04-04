@@ -2,6 +2,8 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { likeArticle, unlikeArticle } from '@/lib/dal/likes'
 import { getCurrentUser } from '@/lib/dal/auth'
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit'
+import { log } from '@/lib/logger'
+import { AppError } from '@/lib/errors'
 
 /**
  * POST /api/articles/[id]/like — Like article
@@ -40,7 +42,14 @@ export async function POST(
     }
 
     return NextResponse.json({ data: { liked: true } })
-  } catch {
+  } catch (err) {
+    if (err instanceof AppError) {
+      return NextResponse.json(
+        { error: { code: 'ERROR', message: err.message } },
+        { status: err.statusCode }
+      )
+    }
+    log.error('Failed to like article', { context: 'POST /api/articles/[id]/like', error: err })
     return NextResponse.json(
       { error: { code: 'INTERNAL_ERROR', message: 'Failed to like article' } },
       { status: 500 }
@@ -72,7 +81,14 @@ export async function DELETE(
     }
 
     return NextResponse.json({ data: { liked: false } })
-  } catch {
+  } catch (err) {
+    if (err instanceof AppError) {
+      return NextResponse.json(
+        { error: { code: 'ERROR', message: err.message } },
+        { status: err.statusCode }
+      )
+    }
+    log.error('Failed to unlike article', { context: 'DELETE /api/articles/[id]/like', error: err })
     return NextResponse.json(
       { error: { code: 'INTERNAL_ERROR', message: 'Failed to unlike article' } },
       { status: 500 }

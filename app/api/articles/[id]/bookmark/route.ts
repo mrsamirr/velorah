@@ -2,6 +2,8 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { bookmarkArticle, unbookmarkArticle } from '@/lib/dal/bookmarks'
 import { getCurrentUser } from '@/lib/dal/auth'
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit'
+import { log } from '@/lib/logger'
+import { AppError } from '@/lib/errors'
 
 /**
  * POST /api/articles/[id]/bookmark — Bookmark article
@@ -40,7 +42,14 @@ export async function POST(
     }
 
     return NextResponse.json({ data: { bookmarked: true } })
-  } catch {
+  } catch (err) {
+    if (err instanceof AppError) {
+      return NextResponse.json(
+        { error: { code: 'ERROR', message: err.message } },
+        { status: err.statusCode }
+      )
+    }
+    log.error('Failed to bookmark article', { context: 'POST /api/articles/[id]/bookmark', error: err })
     return NextResponse.json(
       { error: { code: 'INTERNAL_ERROR', message: 'Failed to bookmark article' } },
       { status: 500 }
@@ -72,7 +81,14 @@ export async function DELETE(
     }
 
     return NextResponse.json({ data: { bookmarked: false } })
-  } catch {
+  } catch (err) {
+    if (err instanceof AppError) {
+      return NextResponse.json(
+        { error: { code: 'ERROR', message: err.message } },
+        { status: err.statusCode }
+      )
+    }
+    log.error('Failed to remove bookmark', { context: 'DELETE /api/articles/[id]/bookmark', error: err })
     return NextResponse.json(
       { error: { code: 'INTERNAL_ERROR', message: 'Failed to remove bookmark' } },
       { status: 500 }

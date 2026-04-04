@@ -2,6 +2,8 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { uploadFile } from '@/lib/dal/media'
 import { getCurrentUser } from '@/lib/dal/auth'
 import { checkRateLimit, RATE_LIMITS } from '@/lib/rate-limit'
+import { log } from '@/lib/logger'
+import { AppError } from '@/lib/errors'
 
 /**
  * POST /api/upload — File upload (authenticated)
@@ -55,7 +57,14 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ data: result }, { status: 201 })
-  } catch {
+  } catch (err) {
+    if (err instanceof AppError) {
+      return NextResponse.json(
+        { error: { code: 'ERROR', message: err.message } },
+        { status: err.statusCode }
+      )
+    }
+    log.error('Upload failed', { context: 'POST /api/upload', error: err })
     return NextResponse.json(
       { error: { code: 'INTERNAL_ERROR', message: 'Upload failed' } },
       { status: 500 }

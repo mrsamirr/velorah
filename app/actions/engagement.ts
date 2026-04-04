@@ -137,6 +137,8 @@ export async function unfollowAction(
 export async function reportAction(
   formData: FormData
 ): Promise<{ success: boolean; error?: string }> {
+  const user = await requireAuth()
+
   const validatedFields = ReportSchema.safeParse({
     entity_type: formData.get('entity_type'),
     entity_id: formData.get('entity_id'),
@@ -147,8 +149,6 @@ export async function reportAction(
   if (!validatedFields.success) {
     return { success: false, error: 'Invalid report data' }
   }
-
-  const user = await requireAuth()
   const supabase = await createClient()
 
   const { error } = await supabase.from('reports').insert({
