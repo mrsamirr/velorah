@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { PenTool, Bell, ChevronDown, LayoutDashboard, Settings, LogOut, Menu } from "lucide-react";
 
 type NavUser = {
     displayName: string;
@@ -109,14 +110,14 @@ export const TopNavBar = ({ transparent = false }: { transparent?: boolean }) =>
                                 href="/publish"
                                 className="hidden md:inline-flex items-center gap-2 px-6 py-2.5 bg-white text-surface rounded-full font-label text-xs uppercase tracking-widest hover:bg-gray-200 transition-all duration-500 ease-out active:scale-95 font-bold"
                             >
-                                <span className="material-symbols-outlined text-sm">edit_note</span>
+                                <PenTool size={16} />
                                 Compose
                             </Link>
                             <Link
                                 href="/notifications"
                                 className="hidden md:flex text-on-surface-variant hover:text-white transition-colors"
                             >
-                                <span className="material-symbols-outlined">notifications</span>
+                                <Bell size={20} />
                             </Link>
                             <div className="relative hidden md:block" ref={menuRef}>
                                 <button
@@ -135,9 +136,7 @@ export const TopNavBar = ({ transparent = false }: { transparent?: boolean }) =>
                                             {user.displayName.charAt(0)}
                                         </span>
                                     )}
-                                    <span className="material-symbols-outlined text-on-surface-variant text-sm group-hover:text-white transition-colors">
-                                        expand_more
-                                    </span>
+                                    <ChevronDown size={16} className="text-on-surface-variant group-hover:text-white transition-colors" />
                                 </button>
                                 {menuOpen && (
                                     <div className="absolute right-0 top-full mt-3 w-56 bg-surface-container-lowest border border-white/10 shadow-2xl shadow-black/50 py-2">
@@ -146,20 +145,20 @@ export const TopNavBar = ({ transparent = false }: { transparent?: boolean }) =>
                                             <p className="text-[10px] font-label uppercase tracking-widest text-on-surface-variant">@{user.username}</p>
                                         </div>
                                         <Link href="/author" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-5 py-3 text-sm text-on-surface-variant hover:text-white hover:bg-white/5 transition-colors">
-                                            <span className="material-symbols-outlined text-base">dashboard</span>
+                                            <LayoutDashboard size={18} />
                                             Dashboard
                                         </Link>
                                         <Link href="/settings" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-5 py-3 text-sm text-on-surface-variant hover:text-white hover:bg-white/5 transition-colors">
-                                            <span className="material-symbols-outlined text-base">settings</span>
+                                            <Settings size={18} />
                                             Settings
                                         </Link>
                                         <Link href="/notifications" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 px-5 py-3 text-sm text-on-surface-variant hover:text-white hover:bg-white/5 transition-colors md:hidden">
-                                            <span className="material-symbols-outlined text-base">notifications</span>
+                                            <Bell size={18} />
                                             Notifications
                                         </Link>
                                         <div className="border-t border-white/5 mt-1">
                                             <button onClick={handleSignOut} className="w-full flex items-center gap-3 px-5 py-3 text-sm text-on-surface-variant hover:text-white hover:bg-white/5 transition-colors">
-                                                <span className="material-symbols-outlined text-base">logout</span>
+                                                <LogOut size={18} />
                                                 Sign Out
                                             </button>
                                         </div>
@@ -176,7 +175,7 @@ export const TopNavBar = ({ transparent = false }: { transparent?: boolean }) =>
                         </Link>
                     )}
                     <button className="md:hidden text-white">
-                        <span className="material-symbols-outlined">menu</span>
+                        <Menu size={24} />
                     </button>
                 </div>
             </nav>

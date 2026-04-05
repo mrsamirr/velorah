@@ -14,6 +14,7 @@ import { getCurrentUser } from "@/lib/dal/auth";
 import { isArticleLiked } from "@/lib/dal/likes";
 import { isBookmarked } from "@/lib/dal/bookmarks";
 import { CommentForm } from "../comment-form";
+import { Clock, Eye, Heart, MessageCircle, Bookmark } from "lucide-react";
 
 export default async function ArticleSlugPage({
   params,
@@ -67,11 +68,11 @@ export default async function ArticleSlugPage({
                 </Badge>
               )}
               <span className="text-on-surface-variant text-xs flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm">schedule</span>
+                <Clock size={14} />
                 {article.read_time_minutes} MIN READ
               </span>
               <span className="text-on-surface-variant text-xs flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm">visibility</span>
+                <Eye size={14} />
                 {article.view_count.toLocaleString()} VIEWS
               </span>
             </div>
@@ -103,15 +104,15 @@ export default async function ArticleSlugPage({
 
               <div className="flex items-center gap-6 text-on-surface-variant">
                 <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm">favorite</span>
+                  <span><Heart size={16} /></span>
                   <span className="text-xs font-bold">{article.like_count.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm">chat_bubble_outline</span>
+                  <span><MessageCircle size={16} /></span>
                   <span className="text-xs font-bold">{article.comment_count}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-sm">bookmark_border</span>
+                  <span><Bookmark size={20} /></span>
                   <span className="text-xs font-bold">{article.bookmark_count}</span>
                 </div>
               </div>
@@ -129,14 +130,14 @@ export default async function ArticleSlugPage({
                     href={`/signin?redirectTo=/article/${article.slug}`}
                     className="flex items-center gap-2 px-4 py-2 border border-outline-variant/20 text-sm text-on-surface-variant hover:text-on-surface transition-colors"
                   >
-                    <span className="material-symbols-outlined text-base">favorite_border</span>
+                    <Heart size={20} />
                     Like
                   </Link>
                   <Link
                     href={`/signin?redirectTo=/article/${article.slug}`}
                     className="flex items-center gap-2 px-4 py-2 border border-outline-variant/20 text-sm text-on-surface-variant hover:text-on-surface transition-colors"
                   >
-                    <span className="material-symbols-outlined text-base">bookmark_border</span>
+                    <span><Bookmark size={20} /></span>
                     Save
                   </Link>
                 </>

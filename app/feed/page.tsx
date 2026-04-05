@@ -4,6 +4,7 @@ import { Footer } from "@/components/Footer";
 import { getPublishedArticles } from "@/lib/dal/articles";
 import { getAllCategories } from "@/lib/dal/categories";
 import { Badge } from "@/components/ui/badge";
+import { FileText, Eye } from "lucide-react";
 
 export default async function FeedPage({
   searchParams,
@@ -119,7 +120,7 @@ export default async function FeedPage({
                       />
                     ) : (
                       <div className="w-full h-full bg-surface-container-high flex items-center justify-center">
-                        <span className="material-symbols-outlined text-outline text-4xl">article</span>
+                        <span className="inline text-sm"><FileText size={20} /></span>
                       </div>
                     )}
                   </div>
@@ -172,7 +173,7 @@ export default async function FeedPage({
                       />
                     ) : (
                       <div className="w-full h-full bg-surface-container-high flex items-center justify-center">
-                        <span className="material-symbols-outlined text-outline text-2xl">article</span>
+                        <span className="inline text-sm"><FileText size={20} /></span>
                       </div>
                     )}
                   </div>
@@ -207,7 +208,7 @@ export default async function FeedPage({
                       </span>
                       <span className="w-1 h-1 bg-outline/40 rounded-full" />
                       <span className="flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[12px]">visibility</span>
+                        <Eye size={14} />
                         {article.view_count.toLocaleString()}
                       </span>
                     </div>

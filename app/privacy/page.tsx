@@ -170,7 +170,7 @@ export default function PrivacyPage() {
                   <span className="font-headline text-xl text-white">
                     Right to Access
                   </span>
-                  <span className="material-symbols-outlined text-neutral-500 group-hover:text-white transition-colors">
+                  <span className="inline">
                     chevron_right
                   </span>
                 </div>
@@ -180,7 +180,7 @@ export default function PrivacyPage() {
                   <span className="font-headline text-xl text-white">
                     Right to Erasure
                   </span>
-                  <span className="material-symbols-outlined text-neutral-500 group-hover:text-white transition-colors">
+                  <span className="inline">
                     chevron_right
                   </span>
                 </div>
@@ -190,7 +190,7 @@ export default function PrivacyPage() {
                   <span className="font-headline text-xl text-white">
                     Right to Rectification
                   </span>
-                  <span className="material-symbols-outlined text-neutral-500 group-hover:text-white transition-colors">
+                  <span className="inline">
                     chevron_right
                   </span>
                 </div>
@@ -211,7 +211,7 @@ export default function PrivacyPage() {
                   compliance with the highest privacy benchmarks.
                 </p>
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-white text-black font-medium text-sm tracking-tight">
-                  <span className="material-symbols-outlined text-sm">
+                  <span className="inline">
                     verified_user
                   </span>
                   ENCRYPTION ACTIVE

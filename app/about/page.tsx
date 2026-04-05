@@ -1,5 +1,6 @@
 import { TopNavBar } from "@/components/TopNavBar";
 import { Footer } from "@/components/Footer";
+import { ArrowRight } from "lucide-react";
 
 export default function AboutPage() {
     return (
@@ -46,7 +47,7 @@ export default function AboutPage() {
                                 </p>
                                 <div className="flex items-center gap-4 group cursor-pointer">
                                     <span className="text-white uppercase tracking-widest text-sm font-bold">DISCOVER OUR ETHOS</span>
-                                    <span className="material-symbols-outlined text-white group-hover:translate-x-2 transition-transform">arrow_right_alt</span>
+                                    <span className="inline"><ArrowRight size={16} /></span>
                                 </div>
                             </div>
                         </div>

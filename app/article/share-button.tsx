@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Share2 } from "lucide-react";
 
 export function ShareButton({ title, slug }: { title: string; slug: string }) {
   const [copied, setCopied] = useState(false);
@@ -26,7 +27,7 @@ export function ShareButton({ title, slug }: { title: string; slug: string }) {
       onClick={handleShare}
       className="flex items-center gap-2 px-4 py-2 border border-outline-variant/20 text-sm text-on-surface-variant hover:text-on-surface transition-colors"
     >
-      <span className="material-symbols-outlined text-base">share</span>
+      <Share2 size={16} />
       {copied ? "Copied!" : "Share"}
     </button>
   );

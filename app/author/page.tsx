@@ -7,6 +7,7 @@ import { getMyProfile, getMyProfileStats } from "@/lib/dal/profiles";
 import { getMyArticles } from "@/lib/dal/articles";
 import { Badge } from "@/components/ui/badge";
 import { DeleteArticleButton } from "./delete-article-button";
+import { FilePen, Settings } from "lucide-react";
 
 export default async function AuthorPage({
   searchParams,
@@ -211,12 +212,7 @@ export default async function AuthorPage({
                 Draft New Essay
               </h3>
             </div>
-            <span
-              className="material-symbols-outlined text-on-surface-variant group-hover:text-surface transition-colors"
-              style={{ fontSize: "32px" }}
-            >
-              edit_note
-            </span>
+            <FilePen size={32} className="text-on-surface-variant group-hover:text-surface transition-colors" />
           </Link>
           <Link
             href="/settings"
@@ -230,12 +226,7 @@ export default async function AuthorPage({
                 Profile Settings
               </h3>
             </div>
-            <span
-              className="material-symbols-outlined text-on-surface-variant group-hover:text-surface transition-colors"
-              style={{ fontSize: "32px" }}
-            >
-              settings
-            </span>
+            <Settings size={32} className="text-on-surface-variant group-hover:text-surface transition-colors" />
           </Link>
         </section>
       </main>

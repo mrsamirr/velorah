@@ -58,7 +58,7 @@ export default async function NotificationsPage() {
         {notifications.length === 0 ? (
           <div className="border border-outline-variant/10 p-16 text-center">
             <span
-              className="material-symbols-outlined text-on-surface-variant mb-6 block"
+              className="inline"
               style={{ fontSize: "48px" }}
             >
               notifications_none
@@ -86,7 +86,7 @@ export default async function NotificationsPage() {
                       : "border-l-2 border-l-blue-500 bg-blue-500/5"
                   }`}
                 >
-                  <span className="material-symbols-outlined text-on-surface-variant mt-0.5">
+                  <span className="inline">
                     {ICON_MAP[n.type] ?? "notifications"}
                   </span>
                   <div className="flex-1 min-w-0">

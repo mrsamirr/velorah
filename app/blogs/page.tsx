@@ -115,11 +115,11 @@ export default function BlogsPage() {
                                     </div>
                                     <div className="flex gap-6 text-outline">
                                         <div className="flex items-center gap-2">
-                                            <span className="material-symbols-outlined" data-icon="visibility">visibility</span>
+                                            <span className="inline" data-icon="visibility">visibility</span>
                                             <span className="text-[10px]">2.4K</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <span className="material-symbols-outlined" data-icon="favorite">favorite</span>
+                                            <span className="inline" data-icon="favorite">favorite</span>
                                             <span className="text-[10px]">182</span>
                                         </div>
                                     </div>
@@ -167,11 +167,11 @@ export default function BlogsPage() {
                                     </div>
                                     <div className="flex gap-6 text-outline">
                                         <div className="flex items-center gap-2">
-                                            <span className="material-symbols-outlined" data-icon="visibility">visibility</span>
+                                            <span className="inline" data-icon="visibility">visibility</span>
                                             <span className="text-[10px]">1.8K</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <span className="material-symbols-outlined" data-icon="favorite">favorite</span>
+                                            <span className="inline" data-icon="favorite">favorite</span>
                                             <span className="text-[10px]">342</span>
                                         </div>
                                     </div>
@@ -219,12 +219,12 @@ export default function BlogsPage() {
                                     </div>
                                     <div className="flex gap-6 text-outline">
                                         <div className="flex items-center gap-2">
-                                            <span className="material-symbols-outlined" data-icon="visibility">visibility</span>
+                                            <span className="inline" data-icon="visibility">visibility</span>
                                             <span className="text-[10px]">3.1K</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             {/* React style attribute for specific icon variation */}
-                                            <span className="material-symbols-outlined" data-icon="favorite" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
+                                            <span className="inline" data-icon="favorite" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
                                             <span className="text-[10px]">529</span>
                                         </div>
                                     </div>

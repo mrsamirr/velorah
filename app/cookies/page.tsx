@@ -35,7 +35,7 @@ export default function CookiesPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-1">
             <div className="bg-[#201f1f] p-12 flex flex-col justify-between aspect-square md:aspect-auto hover:bg-[#2a2a2a] transition-colors duration-500">
               <div>
-                <span className="material-symbols-outlined text-white mb-6" style={{fontVariationSettings: "'FILL' 1"}}>lock</span>
+                <span className="inline" style={{fontVariationSettings: "'FILL' 1"}}>lock</span>
                 <h3 className="font-headline text-2xl text-white mb-4">Essential</h3>
                 <p className="text-neutral-400 text-sm leading-relaxed">Fundamental to the core architecture of Velorah. These ensure secure authentication, session management, and visual consistency across the obsidian gallery.</p>
               </div>
@@ -47,7 +47,7 @@ export default function CookiesPage() {
 
             <div className="bg-[#1c1b1b] p-12 flex flex-col justify-between aspect-square md:aspect-auto hover:bg-[#2a2a2a] transition-colors duration-500">
               <div>
-                <span className="material-symbols-outlined text-white mb-6">analytics</span>
+                <span className="inline">analytics</span>
                 <h3 className="font-headline text-2xl text-white mb-4">Analytical</h3>
                 <p className="text-neutral-400 text-sm leading-relaxed">Helping us understand the rhythm of our readers. These anonymous data points allow us to refine the editorial flow and optimize performance without identifying you.</p>
               </div>
@@ -61,7 +61,7 @@ export default function CookiesPage() {
 
             <div className="bg-[#201f1f] p-12 flex flex-col justify-between aspect-square md:aspect-auto hover:bg-[#2a2a2a] transition-colors duration-500">
               <div>
-                <span className="material-symbols-outlined text-white mb-6">auto_awesome</span>
+                <span className="inline">auto_awesome</span>
                 <h3 className="font-headline text-2xl text-white mb-4">Marketing</h3>
                 <p className="text-neutral-400 text-sm leading-relaxed">Tailoring the atmosphere to your preferences. These cookies allow for personalized editorial suggestions and curated content based on your aesthetic interests.</p>
               </div>

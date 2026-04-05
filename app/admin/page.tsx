@@ -50,7 +50,7 @@ export default async function AdminPage() {
                 href={item.href}
                 className="flex items-center gap-4 text-sm text-on-surface-variant hover:text-on-surface transition-colors"
               >
-                <span className="material-symbols-outlined text-lg">{item.icon}</span>
+                <span className="inline">{item.icon}</span>
                 <span className="font-label uppercase tracking-[0.15em] text-[10px]">
                   {item.label}
                 </span>

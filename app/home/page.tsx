@@ -1,5 +1,6 @@
 import Link from "next/link";
 import React from "react";
+import { Clock, Eye, Heart, MessageCircle, ThumbsUp, ArrowRight } from "lucide-react";
 
 export default function HomePage2() {
     return (
@@ -42,11 +43,11 @@ export default function HomePage2() {
                             <span className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] uppercase tracking-[0.2em] font-bold text-white/60">Architecture</span>
                             <div className="h-4 w-px bg-white/10 mx-2"></div>
                             <span className="text-on-surface-variant text-xs flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm">schedule</span>
+                                <span className="inline text-sm"><Clock size={14} /></span>
                                 12 MIN READ
                             </span>
                             <span className="text-on-surface-variant text-xs flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm">visibility</span>
+                                <span className="inline text-sm"><Eye size={14} /></span>
                                 4.2K VIEWS
                             </span>
                         </div>
@@ -67,7 +68,7 @@ export default function HomePage2() {
                                         </div>
                                         <div className="flex items-center gap-4">
                                             <Link className="text-white hover:text-white/60 transition-colors" href="#">
-                                                <span className="material-symbols-outlined" data-icon="language">language</span>
+                                                <span className="inline" data-icon="language">language</span>
                                             </Link>
                                             <button className="px-6 py-2 rounded-full border border-white/20 text-[10px] font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all">Follow</button>
                                         </div>
@@ -128,22 +129,22 @@ export default function HomePage2() {
                     <div className="mt-24 flex justify-center">
                         <div className="inline-flex items-center gap-12 bg-white/5 backdrop-blur-md px-12 py-5 rounded-full border border-white/10 shadow-2xl shadow-black">
                             <button className="flex items-center gap-3 text-on-surface-variant hover:text-white transition-colors group">
-                                <span className="material-symbols-outlined group-active:scale-125 transition-transform" data-icon="favorite">favorite</span>
+                                <span className="inline" data-icon="favorite">favorite</span>
                                 <span className="text-[10px] font-bold uppercase tracking-widest">1.2K</span>
                             </button>
                             <div className="w-px h-5 bg-white/10"></div>
                             <button className="flex items-center gap-3 text-on-surface-variant hover:text-white transition-colors">
-                                <span className="material-symbols-outlined" data-icon="mode_comment">mode_comment</span>
+                                <span className="inline" data-icon="mode_comment">mode_comment</span>
                                 <span className="text-[10px] font-bold uppercase tracking-widest">24</span>
                             </button>
                             <div className="w-px h-5 bg-white/10"></div>
                             <button className="flex items-center gap-3 text-on-surface-variant hover:text-white transition-colors">
-                                <span className="material-symbols-outlined" data-icon="share">share</span>
+                                <span className="inline" data-icon="share">share</span>
                                 <span className="text-[10px] font-bold uppercase tracking-widest">Share</span>
                             </button>
                             <div className="w-px h-5 bg-white/10"></div>
                             <button className="flex items-center gap-3 text-on-surface-variant hover:text-white transition-colors">
-                                <span className="material-symbols-outlined" data-icon="bookmark">bookmark</span>
+                                <span className="inline" data-icon="bookmark">bookmark</span>
                             </button>
                         </div>
                     </div>
@@ -181,7 +182,7 @@ export default function HomePage2() {
                                                 <span className="text-[10px] text-on-surface-variant/40 uppercase tracking-widest">2 Hours Ago</span>
                                             </div>
                                             <button className="text-on-surface-variant/40 hover:text-white">
-                                                <span className="material-symbols-outlined text-sm">more_horiz</span>
+                                                <span className="inline">more_horiz</span>
                                             </button>
                                         </div>
                                         <p className="text-base text-on-surface-variant leading-relaxed">
@@ -189,10 +190,10 @@ export default function HomePage2() {
                                         </p>
                                         <div className="mt-6 flex items-center gap-8">
                                             <button className="text-[10px] uppercase font-bold text-white tracking-widest hover:underline flex items-center gap-2">
-                                                <span className="material-symbols-outlined text-sm">reply</span> Reply
+                                                <span><MessageCircle size={16} /></span> Reply
                                             </button>
                                             <button className="text-[10px] uppercase font-bold text-on-surface-variant/60 tracking-widest hover:text-white flex items-center gap-2">
-                                                <span className="material-symbols-outlined text-sm">thumb_up</span> Helpful (14)
+                                                <ThumbsUp size={14} /> Helpful (14)
                                             </button>
                                         </div>
                                     </div>
@@ -237,10 +238,10 @@ export default function HomePage2() {
                                     </p>
                                     <div className="mt-6 flex items-center gap-8">
                                         <button className="text-[10px] uppercase font-bold text-white tracking-widest hover:underline flex items-center gap-2">
-                                            <span className="material-symbols-outlined text-sm">reply</span> Reply
+                                            <span><MessageCircle size={16} /></span> Reply
                                         </button>
                                         <button className="text-[10px] uppercase font-bold text-on-surface-variant/60 tracking-widest hover:text-white flex items-center gap-2">
-                                            <span className="material-symbols-outlined text-sm">thumb_up</span> Helpful (8)
+                                            <ThumbsUp size={14} /> Helpful (8)
                                         </button>
                                     </div>
                                 </div>

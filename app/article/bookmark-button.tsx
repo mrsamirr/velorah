@@ -2,6 +2,7 @@
 
 import { bookmarkArticleAction, unbookmarkArticleAction } from "@/app/actions/engagement";
 import { useActionState } from "react";
+import { Bookmark } from "lucide-react";
 
 export function BookmarkButton({ articleId, bookmarked }: { articleId: string; bookmarked: boolean }) {
   const [, formAction, pending] = useActionState(
@@ -16,9 +17,7 @@ export function BookmarkButton({ articleId, bookmarked }: { articleId: string; b
         disabled={pending}
         className="flex items-center gap-2 px-4 py-2 border border-outline-variant/20 text-sm text-on-surface-variant hover:text-on-surface transition-colors disabled:opacity-50"
       >
-        <span className="material-symbols-outlined text-base">
-          {bookmarked ? "bookmark" : "bookmark_border"}
-        </span>
+        <Bookmark size={16} fill={bookmarked ? "currentColor" : "none"} />
         {bookmarked ? "Saved" : "Save"}
       </button>
     </form>

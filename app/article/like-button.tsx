@@ -2,6 +2,7 @@
 
 import { likeArticleAction, unlikeArticleAction } from "@/app/actions/engagement";
 import { useActionState } from "react";
+import { Heart } from "lucide-react";
 
 export function LikeButton({ articleId, liked }: { articleId: string; liked: boolean }) {
   const [, formAction, pending] = useActionState(
@@ -16,9 +17,7 @@ export function LikeButton({ articleId, liked }: { articleId: string; liked: boo
         disabled={pending}
         className="flex items-center gap-2 px-4 py-2 border border-outline-variant/20 text-sm text-on-surface-variant hover:text-on-surface transition-colors disabled:opacity-50"
       >
-        <span className="material-symbols-outlined text-base">
-          {liked ? "favorite" : "favorite_border"}
-        </span>
+        <Heart size={16} fill={liked ? "currentColor" : "none"} />
         {liked ? "Liked" : "Like"}
       </button>
     </form>

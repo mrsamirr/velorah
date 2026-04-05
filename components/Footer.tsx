@@ -65,10 +65,10 @@ export const Footer = () => (
                     Connect
                 </h5>
                 <div className="flex gap-4">
-                    <span className="material-symbols-outlined text-on-surface-variant hover:text-white cursor-pointer transition-colors">
+                    <span className="inline">
                         language
                     </span>
-                    <span className="material-symbols-outlined text-on-surface-variant hover:text-white cursor-pointer transition-colors">
+                    <span className="inline">
                         alternate_email
                     </span>
                 </div>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { TopNavBar } from "@/components/TopNavBar";
 import { Footer } from "@/components/Footer";
+import { ArrowRight } from "lucide-react";
 
 export default function NotFound() {
     return (
@@ -33,7 +34,7 @@ export default function NotFound() {
                         className="group relative flex items-center gap-3 bg-white text-surface px-10 py-4 rounded-full font-label text-[11px] uppercase tracking-[0.15em] font-bold hover:bg-gray-200 transition-all duration-500 ease-out active:scale-95"
                     >
                         Return to Archive
-                        <span className="material-symbols-outlined text-sm">arrow_forward_ios</span>
+                        <span className="inline"><ArrowRight size={16} /></span>
                     </Link>
                 </div>
             </main>

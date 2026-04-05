@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { TopNavBar } from "@/components/TopNavBar";
 import { Footer } from "@/components/Footer";
+import { ArrowRight } from "lucide-react";
 
 export default function HomePage() {
     return (
@@ -41,7 +42,7 @@ export default function HomePage() {
                             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-white via-secondary to-gray-400"></div>
                             <span className="relative z-10 flex items-center gap-3 font-label text-sm uppercase tracking-[0.25em] text-white group-hover:text-surface transition-colors duration-500 font-bold">
                                 Begin Journey
-                                <span className="material-symbols-outlined text-sm">arrow_forward_ios</span>
+                                <span className="inline"><ArrowRight size={16} /></span>
                             </span>
                         </Link>
                     </div>
