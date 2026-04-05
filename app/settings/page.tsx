@@ -24,7 +24,7 @@ export default async function SettingsPage() {
             Profile & Account Configuration
           </p>
         </header>
-        <SettingsForm profile={profile} />
+        <SettingsForm profile={profile} email={user.email} />
       </main>
       <Footer />
     </>

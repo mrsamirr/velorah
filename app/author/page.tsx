@@ -4,12 +4,20 @@ import { TopNavBar } from "@/components/TopNavBar";
 import { Footer } from "@/components/Footer";
 import { getCurrentUser } from "@/lib/dal/auth";
 import { getMyProfile, getMyProfileStats } from "@/lib/dal/profiles";
-import { getPublishedArticles } from "@/lib/dal/articles";
+import { getMyArticles } from "@/lib/dal/articles";
 import { Badge } from "@/components/ui/badge";
+import { DeleteArticleButton } from "./delete-article-button";
 
-export default async function AuthorPage() {
+export default async function AuthorPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
   const user = await getCurrentUser();
   if (!user) redirect("/signin");
+
+  const params = await searchParams;
+  const statusFilter = params.status as "published" | "draft" | "archived" | undefined;
 
   const [profile, stats] = await Promise.all([
     getMyProfile(),
@@ -18,16 +26,9 @@ export default async function AuthorPage() {
 
   if (!profile) redirect("/signin");
 
-  const articles = await getPublishedArticles({
-    author_id: user.id,
-    limit: 10,
-    sort: "recent",
+  const articles = await getMyArticles({
+    status: statusFilter,
   });
-
-  // Also fetch drafts - use a separate query
-  // getPublishedArticles only returns published, so we fetch all statuses via the author_id filter
-  // Note: getPublishedArticles only returns published status. For author dashboard we need all articles.
-  // We'll show published articles for now and indicate draft/review status from the list.
 
   return (
     <>
@@ -83,7 +84,7 @@ export default async function AuthorPage() {
         <section className="bg-black border border-outline-variant/10 overflow-hidden">
           <div className="p-8 border-b border-outline-variant/10 flex justify-between items-center">
             <h2 className="font-label uppercase tracking-[0.2em] text-[10px] text-on-surface">
-              Recent Publications
+              Your Articles
             </h2>
             <Link
               href="/archive"
@@ -91,6 +92,23 @@ export default async function AuthorPage() {
             >
               VIEW FULL ARCHIVE ›
             </Link>
+          </div>
+
+          {/* Status Filter Tabs */}
+          <div className="flex gap-2 p-4 border-b border-outline-variant/10">
+            {([undefined, "published", "draft", "archived"] as const).map((s) => (
+              <Link
+                key={s ?? "all"}
+                href={s ? `/author?status=${s}` : "/author"}
+                className={`px-4 py-2 text-[10px] font-label uppercase tracking-widest transition-colors ${
+                  statusFilter === s || (!statusFilter && !s)
+                    ? "text-on-surface border-b border-on-surface"
+                    : "text-outline hover:text-on-surface"
+                }`}
+              >
+                {s ? s.charAt(0).toUpperCase() + s.slice(1) : "All"}
+              </Link>
+            ))}
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
@@ -108,12 +126,15 @@ export default async function AuthorPage() {
                   <th className="p-8 font-label uppercase tracking-[0.2em] text-[9px] text-on-surface-variant font-medium text-right">
                     Engagement
                   </th>
+                  <th className="p-8 font-label uppercase tracking-[0.2em] text-[9px] text-on-surface-variant font-medium text-right">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant/10">
                 {articles.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="p-16 text-center text-on-surface-variant text-sm">
+                    <td colSpan={5} className="p-16 text-center text-on-surface-variant text-sm">
                       No articles yet.{" "}
                       <Link href="/publish" className="text-on-surface underline">
                         Write your first essay
@@ -124,7 +145,7 @@ export default async function AuthorPage() {
                   articles.map((article) => (
                     <tr key={article.id} className="group hover:bg-white/5 transition-colors">
                       <td className="p-8">
-                        <Link href={`/article?slug=${article.slug}`} className="flex items-center gap-6">
+                        <Link href={`/article/${article.slug}`} className="flex items-center gap-6">
                           {article.cover_image_url && (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -156,6 +177,17 @@ export default async function AuthorPage() {
                         {article.view_count >= 1000
                           ? `${(article.view_count / 1000).toFixed(1)}k`
                           : article.view_count}
+                      </td>
+                      <td className="p-8 text-right">
+                        <div className="flex items-center gap-2 justify-end">
+                          <Link
+                            href={`/publish?edit=${article.slug}`}
+                            className="px-3 py-1 text-[9px] font-label uppercase tracking-widest border border-outline-variant/20 text-on-surface-variant hover:text-on-surface transition-colors"
+                          >
+                            Edit
+                          </Link>
+                          <DeleteArticleButton articleId={article.id} title={article.title} />
+                        </div>
                       </td>
                     </tr>
                   ))

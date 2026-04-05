@@ -7,6 +7,8 @@ import {
   deleteArticle as dalDeleteArticle,
 } from '@/lib/dal/articles'
 import { updateProfile as dalUpdateProfile } from '@/lib/dal/profiles'
+import { getOrCreateTags } from '@/lib/dal/tags'
+import { stripHtml } from '@/lib/utils/sanitize'
 import {
   CreateArticleSchema,
   UpdateArticleSchema,
@@ -36,6 +38,15 @@ export async function createArticleAction(
     try { tag_ids = JSON.parse(tagIdsRaw) } catch { /* ignore */ }
   }
 
+  // Parse comma-separated tags
+  const tagsRaw = formData.get('tags')
+  if (!tag_ids && tagsRaw && typeof tagsRaw === 'string') {
+    const tagNames = tagsRaw.split(',').map(t => t.trim()).filter(Boolean)
+    if (tagNames.length > 0) {
+      tag_ids = await getOrCreateTags(tagNames)
+    }
+  }
+
   const validatedFields = CreateArticleSchema.safeParse({
     title: formData.get('title'),
     content: formData.get('content'),
@@ -59,7 +70,12 @@ export async function createArticleAction(
     }
   }
 
-  const result = await dalCreateArticle(validatedFields.data)
+  const articleData = { ...validatedFields.data }
+  if (!articleData.content_raw && articleData.content) {
+    articleData.content_raw = stripHtml(articleData.content)
+  }
+
+  const result = await dalCreateArticle(articleData)
 
   if ('error' in result) {
     return { message: result.error }

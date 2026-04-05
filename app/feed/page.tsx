@@ -8,25 +8,31 @@ import { Badge } from "@/components/ui/badge";
 export default async function FeedPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; sort?: string }>;
+  searchParams: Promise<{ category?: string; sort?: string; page?: string }>;
 }) {
   const params = await searchParams;
   const selectedCategory = params.category;
   const sort = (params.sort as "recent" | "popular" | "most_liked") ?? "recent";
+  const page = Math.max(1, parseInt(params.page ?? "1", 10) || 1);
+  const limit = 12;
 
   const [categories, articles, featured] = await Promise.all([
     getAllCategories(),
     getPublishedArticles({
-      limit: 12,
+      limit: limit + 1,
+      offset: (page - 1) * limit,
       category_id: selectedCategory,
       sort,
     }),
     getPublishedArticles({ limit: 3, featured: true, sort: "popular" }),
   ]);
 
-  const displayFeatured = featured.length > 0 ? featured : articles.slice(0, 3);
-  const recentArticles = articles.slice(featured.length > 0 ? 0 : 3);
-  const trendingArticles = articles
+  const hasMore = articles.length > limit;
+  const paginatedArticles = hasMore ? articles.slice(0, limit) : articles;
+
+  const displayFeatured = featured.length > 0 ? featured : paginatedArticles.slice(0, 3);
+  const recentArticles = paginatedArticles.slice(featured.length > 0 ? 0 : 3);
+  const trendingArticles = paginatedArticles
     .slice()
     .sort((a, b) => b.view_count - a.view_count)
     .slice(0, 4);
@@ -100,7 +106,7 @@ export default async function FeedPage({
               {displayFeatured.map((article) => (
                 <Link
                   key={article.id}
-                  href={`/article?slug=${article.slug}`}
+                  href={`/article/${article.slug}`}
                   className="group cursor-pointer"
                 >
                   <div className="aspect-[4/5] overflow-hidden rounded-lg mb-6 bg-surface-container-low border border-white/5">
@@ -141,7 +147,7 @@ export default async function FeedPage({
             <h2 className="font-label text-[10px] uppercase tracking-widest text-outline mb-10 pb-4 border-b border-white/5">
               Recent Explorations
             </h2>
-            {recentArticles.length === 0 && articles.length === 0 ? (
+            {recentArticles.length === 0 && paginatedArticles.length === 0 ? (
               <p className="text-on-surface-variant font-body text-sm">
                 No articles yet. Be the first to{" "}
                 <Link href="/publish" className="text-on-surface underline underline-offset-4">
@@ -153,7 +159,7 @@ export default async function FeedPage({
               recentArticles.map((article) => (
                 <Link
                   key={article.id}
-                  href={`/article?slug=${article.slug}`}
+                  href={`/article/${article.slug}`}
                   className="flex flex-col md:flex-row gap-10 group cursor-pointer"
                 >
                   <div className="w-full md:w-64 h-44 overflow-hidden rounded-md shrink-0 bg-surface-container-low border border-white/5">
@@ -221,7 +227,7 @@ export default async function FeedPage({
                 {trendingArticles.map((article, i) => (
                   <Link
                     key={article.id}
-                    href={`/article?slug=${article.slug}`}
+                    href={`/article/${article.slug}`}
                     className="flex gap-6 group cursor-pointer"
                   >
                     <span className="font-headline text-4xl text-outline group-hover:text-white transition-colors">
@@ -241,6 +247,34 @@ export default async function FeedPage({
             </div>
           </aside>
         </section>
+
+        {/* Pagination */}
+        <div className="px-12 max-w-screen-2xl mx-auto mt-20 flex justify-center gap-4">
+          {page > 1 ? (
+            <Link
+              href={`/feed?${selectedCategory ? `category=${selectedCategory}&` : ""}${sort !== "recent" ? `sort=${sort}&` : ""}page=${page - 1}`}
+              className="px-6 py-3 border border-outline-variant/30 text-on-surface text-xs font-label uppercase tracking-widest hover:bg-on-surface hover:text-surface transition-colors"
+            >
+              ← Previous
+            </Link>
+          ) : (
+            <span className="px-6 py-3 border border-outline-variant/10 text-on-surface-variant/30 text-xs font-label uppercase tracking-widest cursor-not-allowed">
+              ← Previous
+            </span>
+          )}
+          {hasMore ? (
+            <Link
+              href={`/feed?${selectedCategory ? `category=${selectedCategory}&` : ""}${sort !== "recent" ? `sort=${sort}&` : ""}page=${page + 1}`}
+              className="px-6 py-3 border border-outline-variant/30 text-on-surface text-xs font-label uppercase tracking-widest hover:bg-on-surface hover:text-surface transition-colors"
+            >
+              Next →
+            </Link>
+          ) : (
+            <span className="px-6 py-3 border border-outline-variant/10 text-on-surface-variant/30 text-xs font-label uppercase tracking-widest cursor-not-allowed">
+              Next →
+            </span>
+          )}
+        </div>
       </main>
       <Footer />
     </>
