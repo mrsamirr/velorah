@@ -28,26 +28,83 @@ export const TopNavBar = ({ transparent = false }: { transparent?: boolean }) =>
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
+    const fetchUserProfile = async (retries = 3) => {
+        const supabase = createClient();
+        const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+        
+        if (authError) {
+            console.error('[TopNavBar] Auth error:', authError.message);
+        }
+        
+        if (!authUser) {
+            console.log('[TopNavBar] No auth user, retries left:', retries);
+            // If no user and we have retries, try again after a delay
+            if (retries > 0) {
+                setTimeout(() => fetchUserProfile(retries - 1), 100);
+            } else {
+                console.log('[TopNavBar] No auth user after retries');
+                setUser(null);
+            }
+            return; 
+        }
+        
+        console.log('[TopNavBar] Auth user found:', authUser.id);
+        const { data, error: profileError } = await supabase
+            .from("profiles")
+            .select("display_name, username, avatar_url")
+            .eq("id", authUser.id)
+            .single();
+            
+        if (profileError) {
+            console.error('[TopNavBar] Profile fetch error:', profileError.message);
+        }
+        
+        if (data) {
+            console.log('[TopNavBar] Profile loaded:', data.display_name);
+            setUser({
+                displayName: data.display_name,
+                username: data.username,
+                avatarUrl: data.avatar_url,
+            });
+        } else {
+            console.log('[TopNavBar] No profile found for user');
+        }
+    };
+
+    useEffect(() => {
+        fetchUserProfile(10);
+    }, []);
+
     useEffect(() => {
         const supabase = createClient();
-        supabase.auth.getUser().then(({ data: { user: authUser } }) => {
-            if (!authUser) { setUser(null); return; }
-            supabase
-                .from("profiles")
-                .select("display_name, username, avatar_url")
-                .eq("id", authUser.id)
-                .single()
-                .then(({ data }) => {
-                    if (data) {
-                        setUser({
-                            displayName: data.display_name,
-                            username: data.username,
-                            avatarUrl: data.avatar_url,
-                        });
-                    }
-                });
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+                // Add slight delay to ensure session is fully synced
+                setTimeout(() => fetchUserProfile(0), 50);
+            } else if (event === 'SIGNED_OUT') {
+                setUser(null);
+            }
         });
+        return () => {
+            subscription?.unsubscribe();
+        };
     }, []);
+
+    useEffect(() => {
+        fetchUserProfile();
+    }, [pathname]);
+
+    // Periodic refresh while on protected pages (authcheck)
+    useEffect(() => {
+        if (pathname.startsWith('/author') || pathname.startsWith('/settings') || pathname.startsWith('/publish')) {
+            const interval = setInterval(() => {
+                if (!user) {
+                    fetchUserProfile(0);
+                }
+            }, 250);
+            return () => clearInterval(interval);
+        }
+    }, [pathname, user]);
 
     useEffect(() => {
         function handleClickOutside(e: MouseEvent) {

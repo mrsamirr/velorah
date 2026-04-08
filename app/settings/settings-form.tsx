@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useActionState, useState } from "react";
 import { updateProfileAction } from "@/app/actions/content";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import type { ProfileDTO } from "@/lib/dal/profiles";
 import { createClient } from "@/lib/supabase/client";
 
 export function SettingsForm({ profile, email }: { profile: ProfileDTO; email: string }) {
+  const router = useRouter();
   const [state, formAction, pending] = useActionState(updateProfileAction, {});
   const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url ?? "");
   const [avatarUploading, setAvatarUploading] = useState(false);
@@ -75,9 +77,16 @@ export function SettingsForm({ profile, email }: { profile: ProfileDTO; email: s
     }
   }
 
+  async function handleFormSubmit(formData: FormData) {
+    await formAction(formData);
+    setTimeout(() => {
+      router.refresh();
+    }, 100);
+  }
+
   return (
     <>
-    <form action={formAction} className="space-y-12">
+    <form action={handleFormSubmit} className="space-y-12">
       {state?.message && (
         <div
           className={`p-4 border text-sm ${

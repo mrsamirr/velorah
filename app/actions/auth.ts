@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { createProfile } from '@/lib/dal/profiles'
+import { createAdminClient } from '@/lib/supabase/admin'
 import {
   SignUpSchema,
   SignInSchema,
@@ -40,37 +40,27 @@ export async function signup(
 
   const { displayName, email, password } = validatedFields.data
 
-  // 2. Create user with Supabase Auth
-  const supabase = await createClient()
+  // 2. Create pre-confirmed user via admin client (no email confirmation required)
+  const adminSupabase = await createAdminClient()
 
-  const { data: authData, error: authError } = await supabase.auth.signUp({
+  const { data: adminData, error: adminError } = await adminSupabase.auth.admin.createUser({
     email,
     password,
-    options: {
-      data: {
-        display_name: displayName,
-      },
-    },
+    email_confirm: true,
+    user_metadata: { display_name: displayName },
   })
 
-  if (authError) {
+  if (adminError) {
     return {
       message: 'Unable to create account. Please try again.',
     }
   }
 
-  // 3. Create profile in our profiles table
-  if (authData.user) {
-    // Generate username from display name
-    const baseUsername = displayName
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '')
-      .slice(0, 20) || 'user'
-    const username = `${baseUsername}${Date.now().toString(36).slice(-4)}`
-    await createProfile(authData.user.id, email, displayName, username)
-  }
+  // 3. Sign in to establish the session
+  const supabase = await createClient()
+  await supabase.auth.signInWithPassword({ email, password })
 
-  // 4. Redirect to dashboard
+  // 4. Redirect to dashboard (profile is created by DB trigger on auth.users insert)
   revalidatePath('/', 'layout')
   redirect('/author')
 }

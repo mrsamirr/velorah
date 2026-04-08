@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { Suspense, useActionState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import { TopNavBar } from "@/components/TopNavBar";
@@ -26,7 +26,18 @@ type ArticleData = {
   tags?: string[];
 };
 
-export default function PublishPage() {
+function PublishPageFallback() {
+  return (
+    <>
+      <TopNavBar />
+      <main className="pt-32 pb-24 px-8 md:px-16 max-w-[1600px] mx-auto min-h-screen flex items-center justify-center">
+        <p className="text-on-surface-variant font-label uppercase tracking-widest text-xs">Loading...</p>
+      </main>
+    </>
+  );
+}
+
+function PublishPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editSlug = searchParams.get("edit");
@@ -325,5 +336,13 @@ export default function PublishPage() {
       </main>
       <Footer />
     </>
+  );
+}
+
+export default function PublishPage() {
+  return (
+    <Suspense fallback={<PublishPageFallback />}>
+      <PublishPageContent />
+    </Suspense>
   );
 }
