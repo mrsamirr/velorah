@@ -1,17 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { signup } from "@/app/actions/auth";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export default function SignupPage() {
-  const [state, formAction, pending] = useActionState(signup, undefined);
+function RedirectInput() {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") ?? "";
+  return <input type="hidden" name="redirectTo" value={redirectTo} />;
+}
+
+function SignupForm() {
+  const [state, formAction, pending] = useActionState(signup, undefined);
 
   return (
     <div className="bg-surface text-on-surface font-body min-h-screen">
@@ -57,7 +61,9 @@ export default function SignupPage() {
             )}
 
             <form className="space-y-8" action={formAction}>
-              <input type="hidden" name="redirectTo" value={redirectTo} />
+              <Suspense fallback={<input type="hidden" name="redirectTo" value="" />}>
+                <RedirectInput />
+              </Suspense>
               <div className="space-y-2">
                 <Label htmlFor="displayName" className={state?.errors?.displayName ? "text-error" : ""}>
                   Full Name
@@ -132,5 +138,13 @@ export default function SignupPage() {
         </section>
       </main>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div className="bg-surface min-h-screen" />}>
+      <SignupForm />
+    </Suspense>
   );
 }
