@@ -7,8 +7,12 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import {
   SignUpSchema,
   SignInSchema,
+  ForgotPasswordSchema,
+  ResetPasswordSchema,
   type SignUpFormState,
   type SignInFormState,
+  type ForgotPasswordFormState,
+  type ResetPasswordFormState,
 } from '@/lib/schemas/auth'
 
 /**
@@ -40,6 +44,13 @@ export async function signup(
 
   const { displayName, email, password } = validatedFields.data
 
+  // Validate redirectTo (same open-redirect rules as middleware)
+  const rawRedirect = formData.get('redirectTo')?.toString() ?? ''
+  const redirectTo =
+    rawRedirect.startsWith('/') && !rawRedirect.startsWith('//')
+      ? rawRedirect
+      : '/author'
+
   // 2. Create pre-confirmed user via admin client (no email confirmation required)
   const adminSupabase = await createAdminClient()
 
@@ -58,11 +69,17 @@ export async function signup(
 
   // 3. Sign in to establish the session
   const supabase = await createClient()
-  await supabase.auth.signInWithPassword({ email, password })
+  const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
 
-  // 4. Redirect to dashboard (profile is created by DB trigger on auth.users insert)
+  if (signInError) {
+    return {
+      message: 'Account created but sign-in failed. Please sign in manually.',
+    }
+  }
+
+  // 4. Redirect to intended destination (profile is created by DB trigger on auth.users insert)
   revalidatePath('/', 'layout')
-  redirect('/author')
+  redirect(redirectTo)
 }
 
 export async function signin(
@@ -108,4 +125,56 @@ export async function signout(): Promise<void> {
   await supabase.auth.signOut()
   revalidatePath('/', 'layout')
   redirect('/')
+}
+
+export async function requestPasswordReset(
+  state: ForgotPasswordFormState,
+  formData: FormData
+): Promise<ForgotPasswordFormState> {
+  const validatedFields = ForgotPasswordSchema.safeParse({
+    email: formData.get('email'),
+  })
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+    }
+  }
+
+  const supabase = await createClient()
+
+  // Always return success — never reveal whether the email exists
+  await supabase.auth.resetPasswordForEmail(validatedFields.data.email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password`,
+  })
+
+  return { success: true }
+}
+
+export async function resetPassword(
+  state: ResetPasswordFormState,
+  formData: FormData
+): Promise<ResetPasswordFormState> {
+  const validatedFields = ResetPasswordSchema.safeParse({
+    password: formData.get('password'),
+    confirmPassword: formData.get('confirmPassword'),
+  })
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+    }
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase.auth.updateUser({
+    password: validatedFields.data.password,
+  })
+
+  if (error) {
+    return { message: 'Unable to reset password. Your link may have expired. Please request a new one.' }
+  }
+
+  revalidatePath('/', 'layout')
+  redirect('/author')
 }

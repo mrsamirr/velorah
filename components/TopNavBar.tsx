@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { signout } from "@/app/actions/auth";
 import { PenTool, Bell, ChevronDown, LayoutDashboard, Settings, LogOut, Menu } from "lucide-react";
 
 type NavUser = {
@@ -18,7 +19,6 @@ export const TopNavBar = ({ transparent = false }: { transparent?: boolean }) =>
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const pathname = usePathname();
-    const router = useRouter();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -94,18 +94,6 @@ export const TopNavBar = ({ transparent = false }: { transparent?: boolean }) =>
         fetchUserProfile();
     }, [pathname]);
 
-    // Periodic refresh while on protected pages (authcheck)
-    useEffect(() => {
-        if (pathname.startsWith('/author') || pathname.startsWith('/settings') || pathname.startsWith('/publish')) {
-            const interval = setInterval(() => {
-                if (!user) {
-                    fetchUserProfile(0);
-                }
-            }, 250);
-            return () => clearInterval(interval);
-        }
-    }, [pathname, user]);
-
     useEffect(() => {
         function handleClickOutside(e: MouseEvent) {
             if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -118,11 +106,8 @@ export const TopNavBar = ({ transparent = false }: { transparent?: boolean }) =>
 
     const handleSignOut = async () => {
         setMenuOpen(false);
-        const supabase = createClient();
-        await supabase.auth.signOut();
         setUser(null);
-        router.push("/");
-        router.refresh();
+        await signout();
     };
 
     const bgClass =

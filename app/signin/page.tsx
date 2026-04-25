@@ -99,6 +99,11 @@ export default function SignInPage() {
               >
                 {pending ? "Signing in…" : "Sign In"}
               </Button>
+              <p className="text-center text-[0.65rem] text-outline uppercase tracking-widest">
+                <Link className="hover:text-white transition-colors" href="/forgot-password">
+                  Forgot password?
+                </Link>
+              </p>
             </div>
           </form>
 

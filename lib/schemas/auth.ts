@@ -35,6 +35,49 @@ export const SignInSchema = z.object({
   password: z.string().min(1, { error: 'Password is required.' }),
 })
 
+export const ForgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .email({ error: 'Please enter a valid email address.' })
+    .trim()
+    .toLowerCase(),
+})
+
+export const ResetPasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, { error: 'Password must be at least 8 characters.' })
+      .regex(/[a-zA-Z]/, { error: 'Password must contain at least one letter.' })
+      .regex(/[0-9]/, { error: 'Password must contain at least one number.' })
+      .regex(/[^a-zA-Z0-9]/, {
+        error: 'Password must contain at least one special character.',
+      }),
+    confirmPassword: z.string().min(1, { error: 'Please confirm your password.' }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match.',
+    path: ['confirmPassword'],
+  })
+
+export type ForgotPasswordFormState =
+  | {
+      errors?: { email?: string[] }
+      message?: string
+      success?: boolean
+    }
+  | undefined
+
+export type ResetPasswordFormState =
+  | {
+      errors?: {
+        password?: string[]
+        confirmPassword?: string[]
+      }
+      message?: string
+    }
+  | undefined
+
 export type SignUpFormState =
   | {
       errors?: {

@@ -21,6 +21,10 @@ export type AuthUser = {
   email: string
 }
 
+export type AuthUserWithRole = AuthUser & {
+  role: string
+}
+
 /**
  * Gets the current authenticated user.
  * Returns null if not authenticated.
@@ -58,22 +62,40 @@ export async function requireAuth(): Promise<AuthUser> {
 }
 
 /**
- * Require the current user to have a specific role.
- * Throws if not authenticated or role doesn't match.
+ * Gets the current authenticated user with their profile role.
+ * Cached per-request to avoid redundant DB queries when requireRole
+ * is called from multiple server components or actions in the same request.
  */
-export async function requireRole(...roles: UserRole[]): Promise<AuthUser> {
-  const user = await requireAuth()
-  const supabase = await createClient()
+export const getCurrentUserWithRole = cache(async (): Promise<AuthUserWithRole | null> => {
+  const user = await getCurrentUser()
+  if (!user) return null
 
+  const supabase = await createClient()
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
     .eq('id', user.id)
     .single()
 
-  if (!profile || !roles.includes(profile.role as UserRole)) {
+  if (!profile) return null
+
+  return { ...user, role: profile.role as string }
+})
+
+/**
+ * Require the current user to have a specific role.
+ * Throws if not authenticated or role doesn't match.
+ */
+export async function requireRole(...roles: UserRole[]): Promise<AuthUser> {
+  const userWithRole = await getCurrentUserWithRole()
+
+  if (!userWithRole) {
+    throw new Error('Unauthorized')
+  }
+
+  if (!roles.includes(userWithRole.role as UserRole)) {
     throw new Error('Forbidden')
   }
 
-  return user
+  return { id: userWithRole.id, email: userWithRole.email }
 }

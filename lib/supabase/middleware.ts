@@ -56,6 +56,18 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // Enforce admin role for /admin/* routes — defense-in-depth before page render
+  if (user && request.nextUrl.pathname.startsWith('/admin')) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+    if (profile?.role !== 'admin') {
+      return NextResponse.redirect(new URL('/author', request.url))
+    }
+  }
+
   // Redirect authenticated users away from signin
   if (user && (request.nextUrl.pathname === '/signin' || request.nextUrl.pathname === '/signup')) {
     const rawRedirect = request.nextUrl.searchParams.get('redirectTo') || '/author'
